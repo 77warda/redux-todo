@@ -1,0 +1,198 @@
+.banner-con {
+    width: 100%;
+    height: 60vh;
+
+    .banner {
+        width: 100%;
+        height: 100%;
+        background: url("../../assets/img/bg-desktop-light.jpg");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .content {
+            width: 600px;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40vh;
+
+            h1 {
+                letter-spacing: 3px;
+                color: #fff;
+            }
+
+            img {
+                height: 34px;
+            }
+
+        }
+    }
+}
+
+.todo {
+    width: 35rem;
+    max-height: 498px;
+
+    form {
+        width: 95%;
+        height: 83px;
+        position: relative;
+
+        input {
+            width: 95%;
+            padding: 15px 30px;
+            border-radius: 5px;
+            margin-top: 2rem;
+            background: hsl(235, 24%, 19%);
+            font-size: 16px;
+            color: #fff;
+            letter-spacing: 1px;
+            outline: none;
+            border: none;
+
+            &::placeholder {
+                color: #fff;
+                letter-spacing: 2px;
+            }
+
+        }
+
+        .pos-abs {
+            position: absolute;
+            right: 0px;
+            top: 57%;
+        }
+
+        button {
+            background-color: transparent;
+            border: none;
+            outline: none;
+            cursor: pointer;
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            img {
+                height: 15px;
+                width: auto;
+            }
+        }
+    }
+}
+
+.list {
+    width: 100%;
+    margin-top: 2rem;
+    min-height: 30px;
+    // max-height: 170px;
+    // overflow-y: auto;
+
+    .todo-con {
+        width: 95%;
+        background-color: hsl(235, 24%, 19%);
+        border-radius: 5px;
+
+        .todo-li {
+            display: flex;
+            background-color: hsl(235, 24%, 19%);
+            padding: 1rem 0.9rem;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            font-style: italic;
+            font-size: 18px;
+            align-items: center;
+            width: 100%;
+            border-bottom: 1px solid hsl(233, 14%, 27%);
+            ;
+
+            p {
+                width: 92%;
+                color: #fff;
+
+                &.completed {
+                    text-decoration: line-through;
+                    opacity: 0.6;
+                }
+            }
+
+            .check {
+                width: 20px;
+                height: 20px;
+                border: 1px solid hsl(233, 14%, 35%);
+                border-radius: 50%;
+                display: grid;
+                place-content: center;
+                margin-right: 1rem;
+                cursor: pointer;
+
+                img {
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                }
+
+                &.active-check img {
+                    opacity: 1;
+                }
+
+                &.active-check {
+                    background: linear-gradient(hsl(192, 100%, 67%), hsl(280, 87%, 65%));
+                }
+            }
+
+            .pin {
+                width: 15px;
+                height: 15px;
+                display: grid;
+                place-content: center;
+                margin-left: 1rem;
+                color: #fff;
+                cursor: pointer;
+
+                &.active-pin {
+                    color: hsl(192, 78%, 45%);
+                }
+            }
+
+            .close {
+                background: transparent;
+                border: none;
+                outline: none;
+                opacity: 0;
+                transition: all 0.4s ease;
+                cursor: pointer;
+                color: #fff;
+            }
+
+            .edit {
+                background: transparent;
+                border: none;
+                outline: none;
+                opacity: 0;
+                transition: all 0.4s ease;
+                cursor: pointer;
+                color: #fff;
+                margin-right: 0.7rem;
+
+                img {
+                    height: 24px;
+                    width: auto;
+                }
+            }
+
+            &:hover {
+
+                .close,
+                .edit {
+                    opacity: 1;
+                }
+            }
+        }
+
+    }
+}
