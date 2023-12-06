@@ -19,16 +19,20 @@
 
       <div class="list">
         <div class="todo-con">
-          <div class="todo-li" *ngFor="let todo of todos">
+          <div class="todo-li" *ngFor="let todo of allTodos">
             <ng-container>
-              <span class="active-check check">
+              <span
+                (click)="markAsComplete(todo.id)"
+                [class.active-check]="todo.completed"
+                class="check"
+              >
                 <img src="assets/img/icon-check.svg" alt=""
               /></span>
-              <p class="completed">{{ todo.todo }}</p>
-              <button class="edit">
+              <p [class.completed]="todo.completed">{{ todo.todo }}</p>
+              <button (click)="updateTodoText(todo.id, todo.todo)" class="edit">
                 <img src="assets/img/edit.png" alt="" />
               </button>
-              <button class="close">
+              <button (click)="deleteTodo(todo.id)" class="close">
                 <img src="assets/img/icon-cross.svg" alt="" />
               </button>
             </ng-container>

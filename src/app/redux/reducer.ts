@@ -31,11 +31,43 @@ export const reducer = (state: State = initialState, action: Action): State => {
       todos: [...state.todos, newTodo],
     };
   }
-  if (action.type == 'UPDATETODO') {
-    // return { ...state, todo: state.todo - 1 };
-  }
   if (action.type == 'DELETETODO') {
-    // return { ...state, todo: 0 };
+    const deleteTodo = action.payload?.['id'];
+    if (deleteTodo) {
+      const deleteTodos = state.todos.filter((todo) => todo.id !== deleteTodo);
+      return {
+        ...state,
+        todos: deleteTodos,
+      };
+    }
+  }
+  if (action.type === 'MARKCOMPLETED') {
+    const toggleTodoId = action.payload?.['id'];
+    if (toggleTodoId) {
+      const updatedTodos = state.todos.map((todo) =>
+        todo.id === toggleTodoId
+          ? { ...todo, completed: !todo.completed }
+          : todo
+      );
+      return {
+        ...state,
+        todos: updatedTodos,
+      };
+    }
+  }
+  if (action.type === 'UPDATETODO') {
+    const updateId = action.payload?.['id'];
+    const updateText = action.payload?.['todo'];
+
+    if (updateId && updateText) {
+      const updatedTodos = state.todos.map((todo) =>
+        todo.id === updateId ? { ...todo, todo: updateText } : todo
+      );
+      return {
+        ...state,
+        todos: updatedTodos,
+      };
+    }
   }
   return state;
 };

@@ -1,8 +1,13 @@
 import { Component } from '@angular/core';
 import { Todo } from '../redux/todo.service';
-import { ADDTODO } from '../redux/actions';
+import {
+  ADDTODO,
+  Action,
+  DELETETODO,
+  MARKCOMPLETED,
+  UPDATETODO,
+} from '../redux/actions';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { TodoData } from '../redux/reducer';
 
 @Component({
   selector: 'app-todo-app',
@@ -10,19 +15,15 @@ import { TodoData } from '../redux/reducer';
   styleUrls: ['./todo-app.component.scss'],
 })
 export class TodoAppComponent {
-  get todoData() {
-    return this.todo.select('todoData');
+  get allTodos() {
+    return this.todo.select('todos');
   }
 
-  todos: TodoData[] = [
-    { id: 1, todo: 'First', completed: true },
-    { id: 2, todo: 'Second', completed: false },
-    { id: 3, todo: 'Third', completed: false },
-    { id: 4, todo: 'Fourth', completed: true },
-  ];
   constructor(private fb: FormBuilder, private todo: Todo) {}
 
   todoForm: FormGroup;
+  updateTodo: number | null = null;
+
   ngOnInit(): void {
     this.todoForm = this.fb.group({
       name: ['', Validators.required],
@@ -31,10 +32,26 @@ export class TodoAppComponent {
 
   onSubmit() {
     console.log(this.todoForm.value);
-    this.todo.dispatch({
-      type: ADDTODO.type,
-      payload: { todo: this.todoForm.value.name },
-    });
+    if (this.updateTodo !== null) {
+      const editTodoAction: Action = UPDATETODO(
+        this.updateTodo,
+        this.todoForm.value.name
+      );
+      this.todo.dispatch(editTodoAction);
+      this.updateTodo = null;
+    } else {
+      this.todo.dispatch(ADDTODO(this.todoForm.value.name));
+    }
     this.todoForm.reset();
+  }
+  deleteTodo(todoId: number): void {
+    this.todo.dispatch(DELETETODO(todoId));
+  }
+  markAsComplete(todoId: number): void {
+    this.todo.dispatch(MARKCOMPLETED(todoId));
+  }
+  updateTodoText(todoId: number, todoText: string) {
+    this.updateTodo = todoId;
+    this.todoForm.setValue({ name: todoText });
   }
 }
