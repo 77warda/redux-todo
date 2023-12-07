@@ -196,3 +196,31 @@
 
     }
 }
+
+.info {
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+    color: hsl(234, 11%, 52%);
+    padding: 1rem 0.9rem;
+    background: hsl(235, 24%, 19%);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    cursor: pointer;
+
+    .choice {
+        display: flex;
+    }
+
+    .choice p {
+        padding: 0 5px;
+    }
+
+    .info p:hover {
+        color: hsl(220, 98%, 61%);
+    }
+
+    .active {
+        color: hsl(220, 98%, 61%);
+    }
+}

@@ -21,3 +21,7 @@ export const UPDATETODO = (id: number, todo: string): Action => ({
   type: 'UPDATETODO',
   payload: { id, todo },
 });
+export const CLEARCOMPLETED = (): Action => ({
+  type: 'CLEARCOMPLETED',
+  // payload: { id },
+});

@@ -3,6 +3,7 @@ import { Todo } from '../redux/todo.service';
 import {
   ADDTODO,
   Action,
+  CLEARCOMPLETED,
   DELETETODO,
   MARKCOMPLETED,
   UPDATETODO,
@@ -53,5 +54,9 @@ export class TodoAppComponent {
   updateTodoText(todoId: number, todoText: string) {
     this.updateTodo = todoId;
     this.todoForm.setValue({ name: todoText });
+  }
+  clearCompleted() {
+    this.todo.dispatch(CLEARCOMPLETED());
+    console.log('warda', this.todo.dispatch(CLEARCOMPLETED()));
   }
 }

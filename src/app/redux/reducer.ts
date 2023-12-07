@@ -69,5 +69,12 @@ export const reducer = (state: State = initialState, action: Action): State => {
       };
     }
   }
+  if (action.type === 'CLEARCOMPLETED') {
+    const clearCompletedTodos = state.todos.filter((todo) => !todo.completed);
+    return {
+      ...state,
+      todos: clearCompletedTodos,
+    };
+  }
   return state;
 };
