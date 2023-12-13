@@ -2,7 +2,7 @@
   <div class="banner">
     <div class="content">
       <h1>TODO</h1>
-      <img src="./img/icon-sun.svg" alt />
+      <img src="../../assets/img/icon-sun.svg" alt />
     </div>
     <div class="todo">
       <form [formGroup]="todoForm" (ngSubmit)="onSubmit()">
@@ -19,7 +19,7 @@
 
       <div class="list">
         <div class="todo-con">
-          <div class="todo-li" *ngFor="let todo of allTodos">
+          <div class="todo-li" *ngFor="let todo of allTodos$ | async">
             <ng-container>
               <span
                 (click)="markAsComplete(todo.id)"
@@ -28,8 +28,8 @@
               >
                 <img src="assets/img/icon-check.svg" alt=""
               /></span>
-              <p [class.completed]="todo.completed">{{ todo.todo }}</p>
-              <button (click)="updateTodoText(todo.id, todo.todo)" class="edit">
+              <p [class.completed]="todo.completed">{{ todo.name }}</p>
+              <button (click)="updateTodoText(todo.id, todo.name)" class="edit">
                 <img src="assets/img/edit.png" alt="" />
               </button>
               <button (click)="deleteTodo(todo.id)" class="close">
@@ -41,8 +41,24 @@
         </div>
       </div>
       <div class="info">
-        <p class="left">{{ allTodos?.length }} items left</p>
-        <div class="choice"></div>
+        <p class="left">{{ incompleteTodosLength$ | async }} items left</p>
+        <div class="choice">
+          <p [class.active]="activeFilter === 'all'" (click)="setFilter('all')">
+            All
+          </p>
+          <p
+            [class.active]="activeFilter === 'active'"
+            (click)="setFilter('active')"
+          >
+            Active
+          </p>
+          <p
+            [class.active]="activeFilter === 'completed'"
+            (click)="setFilter('completed')"
+          >
+            Completed
+          </p>
+        </div>
         <p class="clear" (click)="clearCompleted()">Clear Completed</p>
       </div>
     </div>
