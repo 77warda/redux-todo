@@ -50,3 +50,8 @@ export const FILTERDATA = createAction(
   '[Todo] FILTER',
   props<{ filter: 'all' | 'active' | 'completed' }>()
 );
+export const enterTodosPage = createAction('[Todo] Enter ');
+export const setTodo = createAction(
+  '[Todo] setTodo',
+  props<{ todo: TodoData[] }>()
+);

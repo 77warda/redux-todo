@@ -7,6 +7,7 @@ import {
   FILTERDATA,
   MARKCOMPLETED,
   UPDATETODO,
+  enterTodosPage,
 } from '../redux/actions';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -16,6 +17,7 @@ import {
   selectAllTodos,
   incompleteTodosLength,
   selectFilteredTodos,
+  selectCurrentTab,
 } from '../redux/state';
 
 @Component({
@@ -26,21 +28,23 @@ import {
 export class TodoAppComponent {
   allTodos$: Observable<TodoData[]>;
   incompleteTodosLength$: Observable<number>;
-  activeFilter: 'all' | 'active' | 'completed' = 'all';
+  activeFilter$: Observable<string>;
 
   constructor(private fb: FormBuilder, private store: Store) {
     // this.allTodos$ = this.store.select(selectAllTodos);
-    this.allTodos$ = this.store.select(selectFilteredTodos);
-    this.incompleteTodosLength$ = this.store.select(incompleteTodosLength);
   }
 
   todoForm: FormGroup;
   updateTodo: number | null = null;
 
   ngOnInit(): void {
+    this.allTodos$ = this.store.select(selectFilteredTodos);
+    this.activeFilter$ = this.store.select(selectCurrentTab);
+    this.incompleteTodosLength$ = this.store.select(incompleteTodosLength);
     this.todoForm = this.fb.group({
       name: ['', Validators.required],
     });
+    this.store.dispatch(enterTodosPage());
   }
 
   onSubmit() {
@@ -82,7 +86,7 @@ export class TodoAppComponent {
     this.store.dispatch(CLEARCOMPLETED());
   }
   setFilter(filter: 'all' | 'active' | 'completed'): void {
-    this.activeFilter = filter;
+    // this.activeFilter = filter;
     this.store.dispatch(FILTERDATA({ filter }));
   }
 }

@@ -15,7 +15,7 @@ export interface State {
 }
 
 export const reducers: ActionReducerMap<State> = {
-  todos: fromBooks.reducer,
+  todos: fromBooks.reducerTodo,
 };
 
 export const metaReducers: MetaReducer<State>[] = [];
@@ -33,18 +33,22 @@ export const selectSharedTodosState =
 
 export const selectAllTodos = createSelector(
   selectSharedTodosState,
-  (state) => state && state.todos // Ensure state is defined before accessing todos
+  // (state) => state && state.todos
+  (state) => (state && state.todos ? state.todos : [])
 );
 export const incompleteTodosLength = createSelector(
   selectAllTodos,
   (todos) => todos.filter((todo) => !todo.completed).length
 );
+export const selectCurrentTab = createSelector(
+  selectSharedTodosState,
+  (state) => state.filter
+);
 
 export const selectFilteredTodos = createSelector(
   selectAllTodos,
-  selectSharedTodosState,
-  (todos, state) => {
-    const filter = state.filter;
+  selectCurrentTab,
+  (todos, filter) => {
     if (filter === 'active') {
       return todos.filter((todo) => !todo.completed);
     } else if (filter === 'completed') {

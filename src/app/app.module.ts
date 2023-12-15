@@ -6,8 +6,10 @@ import { AppComponent } from './app.component';
 import { TodoAppComponent } from './todo-app/todo-app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StoreModule } from '@ngrx/store';
-import { reducer } from './redux/reducer';
+import { reducerTodo } from './redux/reducer';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { EffectsModule } from '@ngrx/effects';
+import { TodoEffects } from './redux/effect';
 
 @NgModule({
   declarations: [AppComponent, TodoAppComponent],
@@ -16,8 +18,9 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    StoreModule.forRoot({ todos: reducer }),
+    StoreModule.forRoot({ todos: reducerTodo }),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
+    EffectsModule.forRoot([TodoEffects]),
   ],
   providers: [],
   bootstrap: [AppComponent],

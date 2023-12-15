@@ -94,16 +94,11 @@ export interface State {
 }
 
 export const initialState: State = {
-  todos: [
-    { id: 1, name: 'First', completed: true },
-    { id: 2, name: 'Second', completed: false },
-    { id: 3, name: 'Third', completed: false },
-    { id: 4, name: 'Fourth', completed: true },
-  ],
+  todos: [],
   filter: 'all',
 };
 
-export const reducer = createReducer(
+export const reducerTodo = createReducer(
   initialState,
   on(Actions.ADDTODO, (state, { todo }) => {
     const newTodo: TodoData = {
@@ -150,5 +145,8 @@ export const reducer = createReducer(
   }),
   on(Actions.FILTERDATA, (state, { filter }) => {
     return { ...state, filter };
+  }),
+  on(Actions.setTodo, (state, { todo }) => {
+    return { ...state, todos: [...state.todos, ...todo] };
   })
 );
