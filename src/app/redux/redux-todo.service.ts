@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { TodoData } from './reducer';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { Store } from '@ngrx/store';
 import * as Actions from './actions';
 
@@ -39,13 +39,7 @@ export class ReduxTodoService {
     return this.http.delete<void>(`${this.apiUrl}?completed=true`);
   }
 
-  getIncompleteTodosLength(): Observable<number> {
-    return this.http.get<number>(`${this.apiUrl}/incomplete/count`);
-  }
-
-  fetchTodosFromJson() {
-    this.getAllTodos().subscribe((todos) => {
-      this.store.dispatch(Actions.setTodo({ todo: todos }));
-    });
-  }
+  // getIncompleteTodosLength(): Observable<number> {
+  //   return this.http.get<number>(`${this.apiUrl}/incomplete/count`);
+  // }
 }

@@ -1,40 +1,77 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { tap, withLatestFrom, map } from 'rxjs/operators';
+import {
+  withLatestFrom,
+  mergeMap,
+  map,
+  catchError,
+  switchMap,
+} from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
-import { State, TodoData, initialState } from './reducer';
+import { State, TodoData } from './reducer';
 import * as TodoActions from './actions';
 import { selectAllTodos } from './state';
+import { ReduxTodoService } from './redux-todo.service';
+import { of, Observable } from 'rxjs';
+import { Action } from '@ngrx/store';
 
 @Injectable()
 export class TodoEffects {
-  constructor(private actions$: Actions, private store: Store<State>) {}
+  constructor(
+    private actions$: Actions,
+    private store: Store<State>,
+    private reduxTodoService: ReduxTodoService
+  ) {}
 
-  storedTodo$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(
-          TodoActions.ADDTODO,
-          TodoActions.UPDATETODO,
-          TodoActions.DELETETODO,
-          TodoActions.MARKCOMPLETED,
-          TodoActions.CLEARCOMPLETED
-        ),
-        withLatestFrom(this.store.pipe(select(selectAllTodos))),
-        tap(([action, todos]) => {
-          localStorage.setItem('todos', JSON.stringify(todos));
-        })
-      ),
-    { dispatch: false }
-  );
-  retrieveTodo$ = createEffect(() =>
+  storeTodo$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(TodoActions.enterTodosPage),
-      map(() => {
-        const todos = localStorage.getItem('todos');
-        return JSON.parse(todos) as TodoData[];
-      }),
-      map((todo) => TodoActions.setTodo({ todo }))
+      ofType(TodoActions.ADDTODO),
+      withLatestFrom(this.store.pipe(select(selectAllTodos))),
+      mergeMap(([action, todos]) =>
+        this.reduxTodoService
+          .addTodo(action.todo)
+          .pipe(
+            map((addedTodo: TodoData) =>
+              TodoActions.setTodo({ todo: [...todos, addedTodo] })
+            )
+          )
+      )
+    )
+  );
+
+  deleteTodo$: Observable<Action> = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TodoActions.DELETETODO),
+      mergeMap((action) =>
+        this.reduxTodoService
+          .deleteTodo(action.id)
+          .pipe(map(() => TodoActions.DELETETODO({ id: action.id })))
+      )
+    )
+  );
+  updateTodo$: Observable<Action> = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TodoActions.UPDATETODO),
+      mergeMap((action) =>
+        this.reduxTodoService
+          .updateTodo(action.id, action.todo)
+          .pipe(
+            map(() =>
+              TodoActions.UPDATETODO({ id: action.id, todo: action.todo })
+            )
+          )
+      )
+    )
+  );
+
+  markAsComplete$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TodoActions.MARKCOMPLETED),
+      mergeMap((action) =>
+        this.reduxTodoService
+          .markAsComplete(action.id, true)
+          .pipe(map(() => TodoActions.MARKCOMPLETED({ id: action.id })))
+      )
     )
   );
 }

@@ -18,24 +18,19 @@
   },
   "todos": [
     {
-      "id": "4cfbfb90-812b-4caa-859e-51c26dbf8004",
-      "name": "empty",
+      "id": "19068924-ea76-4b4e-b6f0-41a972c89d24",
+      "name": "Task",
       "completed": false
     },
     {
-      "id": "f3e76b72-6d64-43d8-92eb-f5c9e9c6f239",
-      "name": "tasks",
+      "id": "af263057-f12b-4d17-9b49-1661da1a28b6",
+      "name": "Task 2",
       "completed": false
     },
     {
-      "id": "f348fdfe-04dc-48d0-b00a-890186a6dfda",
-      "name": "here are",
-      "completed": false
-    },
-    {
-      "id": "f348fdfe-04dc-48d0-b00a-890186a6d2a",
-      "name": "Warda",
-      "completed": false
+      "id": "64830397-18ae-41b5-96c1-12e76c04c12d",
+      "name": "Task 3",
+      "completed": true
     }
   ]
 }
