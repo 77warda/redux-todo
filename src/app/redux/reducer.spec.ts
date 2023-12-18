@@ -5,7 +5,7 @@ import { Action } from 'rxjs/internal/scheduler/Action';
 describe('reducerTodo', () => {
   it('should handle "ADDTODO" action', () => {
     // Arrange
-    const todo = { id: 1, name: 'Test Todo', completed: false };
+    const todo = { id: '1', name: 'Test Todo', completed: false };
     const action = Actions.ADDTODO({ todo });
 
     // Act
@@ -19,9 +19,9 @@ describe('reducerTodo', () => {
     // Arrange
     const initialTodo = {
       ...initialState,
-      todos: [{ id: 1, name: 'Test Todo', completed: false }],
+      todos: [{ id: '1', name: 'Test Todo', completed: false }],
     };
-    const action = Actions.DELETETODO({ id: 1 });
+    const action = Actions.DELETETODO({ id: '1 ' });
 
     // Act
     const newState = reducerTodo(initialTodo, action);
@@ -34,15 +34,15 @@ describe('reducerTodo', () => {
     // Arrange
     const initialState: State = {
       todos: [
-        { id: 1, name: 'Todo 1', completed: false },
-        { id: 2, name: 'Todo 2', completed: false },
-        { id: 3, name: 'Todo 3', completed: false },
+        { id: '1', name: 'Todo 1', completed: false },
+        { id: '2', name: 'Todo 2', completed: false },
+        { id: '3', name: 'Todo 3', completed: false },
       ],
       filter: 'all',
     };
 
-    const action = Actions.MARKCOMPLETED({ id: 1 });
-    const actionWithInvalidId = Actions.MARKCOMPLETED({ id: 4 });
+    const action = Actions.MARKCOMPLETED({ id: '1' });
+    const actionWithInvalidId = Actions.MARKCOMPLETED({ id: '4' });
 
     // Act
     const newState = reducerTodo(initialState, action);
@@ -55,11 +55,11 @@ describe('reducerTodo', () => {
     expect(newState.todos.length).toBe(3);
 
     // Check when action dispatched on targeted todo and other not change
-    expect(newState.todos[0].id).toBe(1);
+    expect(newState.todos[0].id).toBe('1');
     expect(newState.todos[0].completed).toBe(true);
 
     // Check if other(second index) todos remain unchanged
-    expect(newState.todos[2].id).toBe(3);
+    expect(newState.todos[2].id).toBe('3');
     expect(newState.todos[2].completed).toBe(false);
 
     //should return the same state when MARKCOMPLETED action is dispatched with an invalid ID
@@ -69,15 +69,15 @@ describe('reducerTodo', () => {
     // Arrange
     const initialState: State = {
       todos: [
-        { id: 1, name: 'Todo 1', completed: false },
-        { id: 2, name: 'Todo 2', completed: false },
-        { id: 3, name: 'Todo 3', completed: false },
+        { id: '1', name: 'Todo 1', completed: false },
+        { id: '2', name: 'Todo 2', completed: false },
+        { id: '3', name: 'Todo 3', completed: false },
       ],
       filter: 'all',
     };
 
-    const updatedTodo = { id: 1, name: 'Updated Todo 1', completed: false };
-    const action = Actions.UPDATETODO({ id: 1, todo: updatedTodo });
+    const updatedTodo = { id: '1', name: 'Updated Todo 1', completed: false };
+    const action = Actions.UPDATETODO({ id: '1', todo: updatedTodo });
 
     // Act
     const newState = reducerTodo(initialState, action);
@@ -86,7 +86,7 @@ describe('reducerTodo', () => {
     expect(newState.todos.length).toBe(3);
 
     // Check when action dispatched on targeted todo and name changed
-    expect(newState.todos[0].id).toBe(1);
+    expect(newState.todos[0].id).toBe('1');
     expect(newState.todos[0].name).toBe('Updated Todo 1');
 
     // Check if other todos remain unchanged
@@ -96,9 +96,9 @@ describe('reducerTodo', () => {
     //Arrange
     const initialState: State = {
       todos: [
-        { id: 1, name: 'Todo 1', completed: false },
-        { id: 2, name: 'Todo 2', completed: true },
-        { id: 3, name: 'Todo 3', completed: false },
+        { id: '1', name: 'Todo 1', completed: false },
+        { id: '2', name: 'Todo 2', completed: true },
+        { id: '3', name: 'Todo 3', completed: false },
       ],
       filter: 'all',
     };
@@ -110,7 +110,7 @@ describe('reducerTodo', () => {
     //Assert
     expect(newState.todos.length).toBe(2);
 
-    expect(newState.todos[1].id).toBe(3);
+    expect(newState.todos[1].id).toBe('3');
     expect(newState.todos[1].name).toBe('Todo 3');
     expect(newState.todos[1].completed).toBe(false);
   });
@@ -118,9 +118,9 @@ describe('reducerTodo', () => {
     // Arrange
     const initialState: State = {
       todos: [
-        { id: 1, name: 'Todo 1', completed: true },
-        { id: 2, name: 'Todo 2', completed: true },
-        { id: 3, name: 'Todo 3', completed: true },
+        { id: '1', name: 'Todo 1', completed: true },
+        { id: '2', name: 'Todo 2', completed: true },
+        { id: '3', name: 'Todo 3', completed: true },
       ],
       filter: 'all',
     };
@@ -149,8 +149,8 @@ describe('reducerTodo', () => {
     };
 
     const todosToAdd = [
-      { id: 1, name: 'Todo 1', completed: false },
-      { id: 2, name: 'Todo 2', completed: true },
+      { id: '1', name: 'Todo 1', completed: false },
+      { id: '2', name: 'Todo 2', completed: true },
     ];
 
     const action = Actions.setTodo({ todo: todosToAdd });
@@ -162,8 +162,8 @@ describe('reducerTodo', () => {
     expect(newState.todos.length).toBe(2);
 
     // Check if the todos are added
-    expect(newState.todos[0].id).toBe(1);
-    expect(newState.todos[1].id).toBe(2);
+    expect(newState.todos[0].id).toBe('1');
+    expect(newState.todos[1].id).toBe('2');
     expect(newState.todos[1].completed).toBe(true);
 
     // Check if the filter property remains unchanged

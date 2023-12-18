@@ -10,6 +10,7 @@ import { reducerTodo } from './redux/reducer';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
 import { TodoEffects } from './redux/effect';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [AppComponent, TodoAppComponent],
@@ -21,6 +22,7 @@ import { TodoEffects } from './redux/effect';
     StoreModule.forRoot({ todos: reducerTodo }),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
     EffectsModule.forRoot([TodoEffects]),
+    HttpClientModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

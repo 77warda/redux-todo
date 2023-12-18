@@ -1,41 +1,35 @@
-import { Component } from '@angular/core';
-// import { Todo } from '../redux/todo.service';
-import {
-  ADDTODO,
-  CLEARCOMPLETED,
-  DELETETODO,
-  FILTERDATA,
-  MARKCOMPLETED,
-  UPDATETODO,
-  enterTodosPage,
-} from '../redux/actions';
+import { Component, OnInit } from '@angular/core';
+import { v4 as uuidv4 } from 'uuid';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { TodoData } from '../redux/reducer';
 import { Store } from '@ngrx/store';
+import * as TodoActions from '../redux/actions';
 import {
-  selectAllTodos,
-  incompleteTodosLength,
   selectFilteredTodos,
   selectCurrentTab,
+  incompleteTodosLength,
 } from '../redux/state';
+import { ReduxTodoService } from '../redux/redux-todo.service';
 
 @Component({
   selector: 'app-todo-app',
   templateUrl: './todo-app.component.html',
   styleUrls: ['./todo-app.component.scss'],
 })
-export class TodoAppComponent {
+export class TodoAppComponent implements OnInit {
   allTodos$: Observable<TodoData[]>;
   incompleteTodosLength$: Observable<number>;
   activeFilter$: Observable<string>;
 
-  constructor(private fb: FormBuilder, private store: Store) {
-    // this.allTodos$ = this.store.select(selectAllTodos);
-  }
-
   todoForm: FormGroup;
-  updateTodo: number | null = null;
+  updateTodo: string | null = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private reduxTodoService: ReduxTodoService,
+    private store: Store
+  ) {}
 
   ngOnInit(): void {
     this.allTodos$ = this.store.select(selectFilteredTodos);
@@ -44,49 +38,48 @@ export class TodoAppComponent {
     this.todoForm = this.fb.group({
       name: ['', Validators.required],
     });
-    this.store.dispatch(enterTodosPage());
+    this.reduxTodoService.fetchTodosFromJson();
   }
 
   onSubmit() {
-    console.log(this.todoForm.value);
     if (this.updateTodo !== null) {
       const updatedTodo: TodoData = {
         id: this.updateTodo,
         name: this.todoForm.value.name,
         completed: false,
       };
-
       this.store.dispatch(
-        UPDATETODO({ id: this.updateTodo, todo: updatedTodo })
+        TodoActions.UPDATETODO({ id: this.updateTodo, todo: updatedTodo })
       );
       this.updateTodo = null;
     } else {
-      const todo: any = {
+      const todo: TodoData = {
+        id: uuidv4(),
         name: this.todoForm.value.name,
         completed: false,
       };
-      console.log(todo);
-      this.store.dispatch(ADDTODO({ todo }));
+      this.store.dispatch(TodoActions.ADDTODO({ todo }));
     }
+
     this.todoForm.reset();
   }
-  deleteTodo(id: number): void {
-    // this.todo.dispatch(DELETETODO(todoId));
-    this.store.dispatch(DELETETODO({ id }));
+
+  deleteTodo(id: string): void {
+    this.store.dispatch(TodoActions.DELETETODO({ id }));
   }
-  markAsComplete(id: number) {
-    // this.todo.dispatch(MARKCOMPLETED(todoId));
-    this.store.dispatch(MARKCOMPLETED({ id }));
+
+  markAsComplete(todo: TodoData) {
+    if (todo.id !== undefined) {
+      this.store.dispatch(TodoActions.MARKCOMPLETED({ id: todo.id }));
+    }
   }
-  updateTodoText(todoId: number, todoText: string) {
+
+  updateTodoText(todoId: string, todoText: string) {
     this.updateTodo = todoId;
     this.todoForm.setValue({ name: todoText });
   }
-  clearCompleted() {
-    this.store.dispatch(CLEARCOMPLETED());
-  }
-  setFilter(filter: 'all' | 'active' | 'completed'): void {
-    // this.activeFilter = filter;
-    this.store.dispatch(FILTERDATA({ filter }));
+
+  clearCompleted(): void {
+    this.store.dispatch(TodoActions.CLEARCOMPLETED());
   }
 }

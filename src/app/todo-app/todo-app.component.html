@@ -22,7 +22,7 @@
           <div class="todo-li" *ngFor="let todo of allTodos$ | async">
             <ng-container>
               <span
-                (click)="markAsComplete(todo.id)"
+                (click)="markAsComplete(todo)"
                 [class.active-check]="todo.completed"
                 class="check"
               >
@@ -42,7 +42,7 @@
       </div>
       <div class="info">
         <p class="left">{{ incompleteTodosLength$ | async }} items left</p>
-        <div class="choice" *ngIf="activeFilter$ | async as activeFilter">
+        <!-- <div class="choice" *ngIf="activeFilter$ | async as activeFilter">
           <p [class.active]="activeFilter === 'all'" (click)="setFilter('all')">
             All
           </p>
@@ -58,7 +58,7 @@
           >
             Completed
           </p>
-        </div>
+        </div> -->
         <p class="clear" (click)="clearCompleted()">Clear Completed</p>
       </div>
     </div>
