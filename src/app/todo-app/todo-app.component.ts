@@ -21,9 +21,9 @@ import { ReduxTodoService } from '../redux/redux-todo.service';
 export class TodoAppComponent {
   allTodos$: Observable<TodoData[]>;
   incompleteTodosLength$: Observable<number>;
-
   todoForm: FormGroup;
   updateTodo: string | null = null;
+  activeFilter$: Observable<string>;
 
   constructor(
     private fb: FormBuilder,
@@ -32,15 +32,13 @@ export class TodoAppComponent {
   ) {}
 
   ngOnInit(): void {
-    this.allTodos$ = this.reduxTodoService.getAllTodos();
-    // this.incompleteTodosLength$ =
-    // this.reduxTodoService.getIncompleteTodosLength();
-
+    this.store.dispatch(todoPageActions.loadTodo());
+    this.allTodos$ = this.store.select(selectFilteredTodos);
+    this.activeFilter$ = this.store.select(selectCurrentTab);
+    this.incompleteTodosLength$ = this.store.select(incompleteTodosLength);
     this.todoForm = this.fb.group({
       name: ['', Validators.required],
     });
-    this.store.dispatch(todoPageActions.enterTodosPage());
-    this.refreshData();
   }
 
   onSubmit() {
@@ -54,13 +52,12 @@ export class TodoAppComponent {
       // this.reduxTodoService
       //   .updateTodo(this.updateTodo, updatedTodo)
       //   .subscribe(() => {
-      //     this.refreshData();
+      //   this.refreshData();
       //     this.updateTodo = null;
       //   });
       this.store.dispatch(
         todoPageActions.UPDATETODO({ id: this.updateTodo, todo: updatedTodo })
       );
-      this.refreshData();
       this.updateTodo = null;
     } else {
       const todo: TodoData = {
@@ -71,16 +68,14 @@ export class TodoAppComponent {
 
       // this.reduxTodoService.addTodo(todo).subscribe(() => this.refreshData());
       this.store.dispatch(todoPageActions.ADDTODO({ todo }));
-      this.refreshData();
+      // this.refreshData();
     }
-
     this.todoForm.reset();
   }
 
   deleteTodo(id: string): void {
     // this.reduxTodoService.deleteTodo(id).subscribe(() => this.refreshData());
     this.store.dispatch(todoPageActions.DELETETODO({ id }));
-    this.refreshData();
   }
 
   markAsComplete(todo: TodoData) {
@@ -90,9 +85,10 @@ export class TodoAppComponent {
       //   .subscribe(() => {
       //     todo.completed = !todo.completed;
       //   });
-      this.store.dispatch(todoPageActions.MARKCOMPLETED({ id: todo.id }));
+      this.store.dispatch(
+        todoPageActions.MARKCOMPLETED({ id: todo.id, todo: todo })
+      );
     }
-    this.refreshData();
   }
 
   updateTodoText(todoId: string, todoText: string) {
@@ -110,13 +106,10 @@ export class TodoAppComponent {
           });
         }
       });
-      this.refreshData();
+      // this.refreshData();
     });
   }
-
-  private refreshData() {
-    this.allTodos$ = this.reduxTodoService.getAllTodos();
-    // this.incompleteTodosLength$ =
-    // this.reduxTodoService.getIncompleteTodosLength();
+  setFilter(filter: 'all' | 'active' | 'completed'): void {
+    this.store.dispatch(todoPageActions.FILTERDATA({ filter }));
   }
 }

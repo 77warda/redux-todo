@@ -4,6 +4,7 @@ import { TodoData } from './reducer';
 import { Observable, switchMap } from 'rxjs';
 import { Store } from '@ngrx/store';
 import * as Actions from './actions';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root',
@@ -38,8 +39,4 @@ export class ReduxTodoService {
   clearCompleted(): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}?completed=true`);
   }
-
-  // getIncompleteTodosLength(): Observable<number> {
-  //   return this.http.get<number>(`${this.apiUrl}/incomplete/count`);
-  // }
 }

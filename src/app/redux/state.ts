@@ -49,6 +49,8 @@ export const selectFilteredTodos = createSelector(
   selectAllTodos,
   selectCurrentTab,
   (todos, filter) => {
+    console.log('All Todos:', todos);
+    console.log('Filter:', filter);
     if (filter === 'active') {
       return todos.filter((todo) => !todo.completed);
     } else if (filter === 'completed') {

@@ -7,6 +7,7 @@ export interface TodoData {
   name: string;
   completed: boolean;
 }
+// export type BookRequiredProps = Pick<TodoData, 'name'>;
 
 export interface State {
   todos: TodoData[];
@@ -65,6 +66,10 @@ export const reducerTodo = createReducer(
   }),
   on(Actions.FILTERDATA, (state, { filter }) => {
     return { ...state, filter };
+  }),
+
+  on(Actions.loadTodoSuccess, (state, { todo }) => {
+    return { ...state, todos: [...state.todos, ...todo] };
   }),
   on(Actions.setTodo, (state, { todo }) => {
     return { ...state, todos: [...state.todos, ...todo] };
