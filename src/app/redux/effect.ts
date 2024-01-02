@@ -26,16 +26,6 @@ export class TodoEffects {
     private reduxTodoService: ReduxTodoService
   ) {}
 
-  // loadTodos$ = createEffect(() => {
-  //   return this.actions$.pipe(
-  //     ofType(TodoActions.loadTodo),
-  //     exhaustMap(() => {
-  //       return this.reduxTodoService
-  //         .getAllTodos()
-  //         .pipe(map((todo) => TodoActions.loadTodoSuccess({ todo })));
-  //     })
-  //   );
-  // });
   loadTodos$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TodoActions.loadTodo),
@@ -57,50 +47,93 @@ export class TodoEffects {
   );
   addTodo$ = createEffect(() => {
     return this.actions$.pipe(
-      ofType(TodoActions.ADDTODO),
+      ofType(TodoActions.addTodo),
       concatMap((action) => {
-        return this.reduxTodoService
-          .addTodo(action.todo)
-          .pipe(map((todo) => TodoActions.todoAdded({ todo })));
+        return this.reduxTodoService.addTodo(action.todo).pipe(
+          map((todo) => TodoActions.addTodoSuccess({ todo })),
+          catchError((error) => {
+            console.error('Error adding todo:', error);
+            this.store.dispatch(
+              TodoErrorActions.showNetworkError({
+                errorMessage: 'Todos added failed.',
+              })
+            );
+            return EMPTY;
+          })
+        );
       })
     );
   });
 
   deleteTodo$: Observable<Action> = createEffect(() =>
     this.actions$.pipe(
-      ofType(TodoActions.DELETETODO),
+      ofType(TodoActions.deleteTodo),
       mergeMap((action) =>
-        this.reduxTodoService
-          .deleteTodo(action.id)
-          .pipe(map(() => TodoActions.todoDeleted({ id: action.id })))
+        this.reduxTodoService.deleteTodo(action.id).pipe(
+          map(() => {
+            console.log('Todo deleted successfully');
+            return TodoActions.deleteTodoSuccess({ id: action.id });
+          }),
+          catchError((error) => {
+            console.error('Error deleting todo:', error);
+            this.store.dispatch(
+              TodoErrorActions.showNetworkError({
+                errorMessage: 'Network error. Todo not deleted',
+              })
+            );
+            return EMPTY;
+          })
+        )
       )
     )
   );
   updateTodo$: Observable<Action> = createEffect(() =>
     this.actions$.pipe(
-      ofType(TodoActions.UPDATETODO),
+      ofType(TodoActions.updateTodo),
       mergeMap((action) =>
-        this.reduxTodoService
-          .updateTodo(action.id, action.todo)
-          .pipe(
-            map(() =>
-              TodoActions.todoToBeUpdated({ id: action.id, todo: action.todo })
-            )
-          )
+        this.reduxTodoService.updateTodo(action.id, action.todo).pipe(
+          map(() =>
+            TodoActions.updatedTodoSuccess({
+              id: action.id,
+              todo: action.todo,
+            })
+          ),
+          catchError((error) => {
+            console.error('Error deleting todo:', error);
+            this.store.dispatch(
+              TodoErrorActions.showNetworkError({
+                errorMessage: 'Network error. Todo Update Failed',
+              })
+            );
+            return EMPTY;
+          })
+        )
       )
     )
   );
 
   markAsComplete$: Observable<Action> = createEffect(() =>
     this.actions$.pipe(
-      ofType(TodoActions.MARKCOMPLETED),
+      ofType(TodoActions.markCompleted),
       mergeMap((action) =>
         this.reduxTodoService
           .markAsComplete(action.id, !action.todo.completed)
           .pipe(
             map(() =>
-              TodoActions.markAsCompleted({ id: action.id, todo: action.todo })
-            )
+              TodoActions.markCompletedSuccess({
+                id: action.id,
+                todo: action.todo,
+              })
+            ),
+            catchError((error) => {
+              console.error('Error deleting todo:', error);
+              this.store.dispatch(
+                TodoErrorActions.showNetworkError({
+                  errorMessage: 'Network error. Todo not marked as completed',
+                })
+              );
+              return EMPTY;
+            })
           )
       )
     )
@@ -122,6 +155,15 @@ export class TodoEffects {
               }
             });
             return TodoActions.clearCompletedSuccess();
+          }),
+          catchError((error) => {
+            console.error('Error deleting todo:', error);
+            this.store.dispatch(
+              TodoErrorActions.showNetworkError({
+                errorMessage: 'Network error. Not all completed todos Deleted',
+              })
+            );
+            return EMPTY;
           })
         )
       )

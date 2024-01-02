@@ -5,29 +5,50 @@ import { Action } from 'rxjs/internal/scheduler/Action';
 describe('reducerTodo', () => {
   it('should handle "ADDTODO" action', () => {
     // Arrange
-    const todo = { id: '1', name: 'Test Todo', completed: false };
-    const action = Actions.ADDTODO({ todo });
-
-    // Act
+    const todo = { id: '1', name: 'New Todo', completed: false }; // Provide mock data
+    const action = Actions.addTodoSuccess({ todo });
     const newState = reducerTodo(initialState, action);
 
-    // Assert
-    expect(newState.todos.length).toBe(1);
-    expect(newState.todos[0]).toEqual(todo);
+    // Check if the new todo is added to the state
+    expect(newState.todos.length).toBe(initialState.todos.length + 1);
+
+    // Check if the new todo has the correct properties
+    const addedTodo = newState.todos.find((t) => t.name === todo.name);
+    expect(addedTodo).toBeTruthy();
+    expect(addedTodo!.completed).toBe(false);
+    expect(addedTodo!.name).toBe(todo.name);
   });
-  it('should handle DELETETODO action', () => {
-    // Arrange
-    const initialTodo = {
-      ...initialState,
-      todos: [{ id: '1', name: 'Test Todo', completed: false }],
-    };
-    const action = Actions.DELETETODO({ id: '1 ' });
+  it('should delete a todo when DELETETODO action is dispatched', () => {
+    // Add a todo to the initial state
+    const todoToDelete = { id: '1', name: 'Todo to delete', completed: false };
+    const initialStateWithTodo = { ...initialState, todos: [todoToDelete] };
 
-    // Act
-    const newState = reducerTodo(initialTodo, action);
+    const action = Actions.deleteTodo({ id: '1' });
+    const newState = reducerTodo(initialStateWithTodo, action);
 
-    // Assert
-    expect(newState.todos.length).toBe(0);
+    // Check if the todo is deleted from the state
+    expect(newState.todos.length).toBe(initialStateWithTodo.todos.length - 1);
+
+    // Check if the deleted todo is not present in the new state
+    const deletedTodo = newState.todos.find((t) => t.id === todoToDelete.id);
+    expect(deletedTodo).toBeFalsy();
+  });
+
+  it('should not delete any todo if the provided id does not match any todo', () => {
+    // Add a todo to the initial state
+    const todoToDelete = { id: '1', name: 'Todo to delete', completed: false };
+    const initialStateWithTodo = { ...initialState, todos: [todoToDelete] };
+
+    // Attempt to delete a todo with a different id
+    const action = Actions.deleteTodo({ id: '2' });
+    const newState = reducerTodo(initialStateWithTodo, action);
+
+    // Check if the number of todos remains the same
+    expect(newState.todos.length).toBe(initialStateWithTodo.todos.length);
+
+    // Check if the initial todo is still present in the state
+    const existingTodo = newState.todos.find((t) => t.id === todoToDelete.id);
+    expect(existingTodo).toBeTruthy();
   });
 
   it('should handle MARKCOMPLETED action', () => {
@@ -41,8 +62,14 @@ describe('reducerTodo', () => {
       filter: 'all',
     };
 
-    const action = Actions.MARKCOMPLETED({ id: '1' });
-    const actionWithInvalidId = Actions.MARKCOMPLETED({ id: '4' });
+    const action = Actions.markCompleted({
+      id: '1',
+      todo: initialState.todos[0],
+    });
+    const actionWithInvalidId = Actions.markCompletedSuccess({
+      id: '4',
+      todo: initialState.todos[0],
+    });
 
     // Act
     const newState = reducerTodo(initialState, action);
@@ -58,12 +85,26 @@ describe('reducerTodo', () => {
     expect(newState.todos[0].id).toBe('1');
     expect(newState.todos[0].completed).toBe(true);
 
-    // Check if other(second index) todos remain unchanged
+    // Check if other (second index) todos remain unchanged
     expect(newState.todos[2].id).toBe('3');
     expect(newState.todos[2].completed).toBe(false);
 
-    //should return the same state when MARKCOMPLETED action is dispatched with an invalid ID
+    // Should return the same state when MARKCOMPLETED action is dispatched with an invalid ID
     expect(newStateWithInvalidId).toEqual(initialState);
+  });
+
+  it('should toggle the completed status of a todo when MARKCOMPLETED action is dispatched', () => {
+    // Add a completed todo to the initial state
+    const todoToToggle = { id: '1', name: 'Todo to toggle', completed: true };
+    const initialStateWithTodo = { ...initialState, todos: [todoToToggle] };
+
+    const action = Actions.markCompleted({ id: '1', todo: todoToToggle });
+    const newState = reducerTodo(initialStateWithTodo, action);
+
+    // Check if the completed status is toggled in the state
+    const toggledTodo = newState.todos.find((t) => t.id === todoToToggle.id);
+    expect(toggledTodo).toBeTruthy();
+    expect(toggledTodo!.completed).toBe(false);
   });
   it('should handle UPDATETODO action ', () => {
     // Arrange
@@ -77,7 +118,7 @@ describe('reducerTodo', () => {
     };
 
     const updatedTodo = { id: '1', name: 'Updated Todo 1', completed: false };
-    const action = Actions.UPDATETODO({ id: '1', todo: updatedTodo });
+    const action = Actions.updateTodo({ id: '1', todo: updatedTodo });
 
     // Act
     const newState = reducerTodo(initialState, action);

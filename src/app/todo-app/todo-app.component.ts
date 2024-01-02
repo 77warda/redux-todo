@@ -73,7 +73,7 @@ export class TodoAppComponent {
       //     this.updateTodo = null;
       //   });
       this.store.dispatch(
-        todoPageActions.UPDATETODO({ id: this.updateTodo, todo: updatedTodo })
+        todoPageActions.updateTodo({ id: this.updateTodo, todo: updatedTodo })
       );
       this.updateTodo = null;
     } else {
@@ -84,14 +84,14 @@ export class TodoAppComponent {
       };
 
       // this.reduxTodoService.addTodo(todo).subscribe(() => this.refreshData());
-      this.store.dispatch(todoPageActions.ADDTODO({ todo }));
+      this.store.dispatch(todoPageActions.addTodo({ todo }));
     }
     this.todoForm.reset();
   }
 
   deleteTodo(id: string): void {
     // this.reduxTodoService.deleteTodo(id).subscribe(() => this.refreshData());
-    this.store.dispatch(todoPageActions.DELETETODO({ id }));
+    this.store.dispatch(todoPageActions.deleteTodo({ id }));
   }
 
   markAsComplete(todo: TodoData) {
@@ -102,7 +102,7 @@ export class TodoAppComponent {
       //     todo.completed = !todo.completed;
       //   });
       this.store.dispatch(
-        todoPageActions.MARKCOMPLETED({ id: todo.id, todo: todo })
+        todoPageActions.markCompleted({ id: todo.id, todo: todo })
       );
     }
   }

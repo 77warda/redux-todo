@@ -21,19 +21,14 @@ export const initialState: State = {
 
 export const reducerTodo = createReducer(
   initialState,
-  on(Actions.ADDTODO, (state, { todo }) => {
-    const newTodo: TodoData = {
-      id: uuidv4(),
-      name: todo.name,
-      completed: false,
-    };
+  on(Actions.addTodoSuccess, (state, { todo }) => {
     return {
       ...state,
-      todos: [...state.todos, newTodo],
+      todos: [...state.todos, todo],
     };
   }),
 
-  on(Actions.DELETETODO, (state, { id }) => {
+  on(Actions.deleteTodo, (state, { id }) => {
     const deleteTodo = state.todos.filter((todo) => todo.id !== id);
     return {
       ...state,
@@ -41,16 +36,27 @@ export const reducerTodo = createReducer(
     };
   }),
 
-  on(Actions.MARKCOMPLETED, (state, { id }) => {
-    const markCompleted = state.todos.map((todo) =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+  // on(Actions.MARKCOMPLETED, (state, { id }) => {
+  //   const markCompleted = state.todos.map((todo) =>
+  //     todo.id === id ? { ...todo, completed: !todo.completed } : todo
+  //   );
+  //   return {
+  //     ...state,
+  //     todos: markCompleted,
+  //   };
+  // }),
+  on(Actions.markCompleted, (state, { id, todo }) => {
+    const markCompleted = state.todos.map((existingTodo) =>
+      existingTodo.id === id
+        ? { ...existingTodo, completed: !existingTodo.completed }
+        : existingTodo
     );
     return {
       ...state,
       todos: markCompleted,
     };
   }),
-  on(Actions.UPDATETODO, (state, { id, todo }) => {
+  on(Actions.updateTodo, (state, { id, todo }) => {
     const updatedTodos = state.todos.map((todoUpdate) =>
       todoUpdate.id === id ? { ...todoUpdate, name: todo.name } : todoUpdate
     );
