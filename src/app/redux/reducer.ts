@@ -7,7 +7,7 @@ export interface TodoData {
   name: string;
   completed: boolean;
 }
-// export type BookRequiredProps = Pick<TodoData, 'name'>;
+export type BookRequiredProps = Pick<TodoData, 'name'>;
 
 export interface State {
   todos: TodoData[];

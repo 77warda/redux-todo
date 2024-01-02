@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { TodoData } from './reducer';
+import { BookRequiredProps, TodoData } from './reducer';
 import { Observable, switchMap } from 'rxjs';
 import { Store } from '@ngrx/store';
 import * as Actions from './actions';
@@ -26,6 +26,12 @@ export class ReduxTodoService {
     return this.http.put<TodoData>(`${this.apiUrl}/${id}`, todo);
   }
 
+  update(id: string, updates: BookRequiredProps) {
+    return this.http.patch<TodoData>(
+      `${this.apiUrl}/${id}`,
+      JSON.stringify(updates)
+    );
+  }
   deleteTodo(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }

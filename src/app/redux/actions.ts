@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { TodoData } from './reducer';
+import { BookRequiredProps, TodoData } from './reducer';
 
 export const ADDTODO = createAction(
   '[Todo] ADDTODO',
@@ -34,6 +34,15 @@ export const UPDATETODO = createAction(
   '[Todo] UPDATETODO',
   props<{ id: string; todo: TodoData }>()
 );
+export const updateBook = createAction(
+  '[Books page] Update book',
+  props<{ bookId: string; changes: BookRequiredProps }>()
+);
+
+export const bookUpdated = createAction(
+  '[Books Api] Books Updated',
+  props<{ book: TodoData }>()
+);
 
 export const todoToBeUpdated = createAction(
   '[Todo] todo to be updated',
@@ -41,6 +50,9 @@ export const todoToBeUpdated = createAction(
 );
 
 export const CLEARCOMPLETED = createAction('[Todo] CLEARCOMPLETED');
+export const clearCompletedSuccess = createAction(
+  '[Todo] clear completed success'
+);
 
 export const FILTERDATA = createAction(
   '[Todo] FILTER',

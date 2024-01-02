@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
 import * as todoPageActions from '../redux/actions';
+import * as TodoErrorActions from '../redux/error-action';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 import { TodoData } from '../redux/reducer';
 import { Store } from '@ngrx/store';
 import {
@@ -24,6 +25,8 @@ export class TodoAppComponent {
   todoForm: FormGroup;
   updateTodo: string | null = null;
   activeFilter$: Observable<string>;
+  errorMessage: string | null = null;
+  networkErrorMessage$: Observable<string | null>;
 
   constructor(
     private fb: FormBuilder,
@@ -39,6 +42,20 @@ export class TodoAppComponent {
     this.todoForm = this.fb.group({
       name: ['', Validators.required],
     });
+
+    // ============showing error============
+    // this.reduxTodoService
+    //   .getAllTodos()
+    //   .pipe(
+    //     catchError((error) => {
+    //       console.error('Error loading todos:', error);
+    //       this.errorMessage = 'Failed to load todos. Please try again.';
+    //       return of([]);
+    //     })
+    //   )
+    //   .subscribe(() => {
+    //     console.log('Successfully loaded');
+    //   });
   }
 
   onSubmit() {
@@ -68,7 +85,6 @@ export class TodoAppComponent {
 
       // this.reduxTodoService.addTodo(todo).subscribe(() => this.refreshData());
       this.store.dispatch(todoPageActions.ADDTODO({ todo }));
-      // this.refreshData();
     }
     this.todoForm.reset();
   }
@@ -97,17 +113,18 @@ export class TodoAppComponent {
   }
 
   clearCompleted(): void {
-    this.allTodos$.subscribe((todos) => {
-      const completedTodos = todos.filter((todo) => todo.completed);
-      completedTodos.forEach((completedTodo) => {
-        if (completedTodo.id) {
-          this.reduxTodoService.deleteTodo(completedTodo.id).subscribe(() => {
-            console.log('delete', completedTodo.id);
-          });
-        }
-      });
-      // this.refreshData();
-    });
+    // this.allTodos$.subscribe((todos) => {
+    //   const completedTodos = todos.filter((todo) => todo.completed);
+    //   completedTodos.forEach((completedTodo) => {
+    //     if (completedTodo.id) {
+    //       this.reduxTodoService.deleteTodo(completedTodo.id).subscribe(() => {
+    //         console.log('delete', completedTodo.id);
+    //       });
+    //     }
+    //   });
+    //   // this.refreshData();
+    // });
+    this.store.dispatch(todoPageActions.CLEARCOMPLETED());
   }
   setFilter(filter: 'all' | 'active' | 'completed'): void {
     this.store.dispatch(todoPageActions.FILTERDATA({ filter }));

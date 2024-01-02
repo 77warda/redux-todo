@@ -7,10 +7,12 @@ import {
   catchError,
   switchMap,
   concatMap,
+  exhaustMap,
 } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import { State, TodoData } from './reducer';
 import * as TodoActions from './actions';
+import * as TodoErrorActions from './error-action';
 import { selectAllTodos } from './state';
 import { ReduxTodoService } from './redux-todo.service';
 import { of, Observable, EMPTY } from 'rxjs';
@@ -24,17 +26,32 @@ export class TodoEffects {
     private reduxTodoService: ReduxTodoService
   ) {}
 
-  loadTodo$ = createEffect(() =>
+  // loadTodos$ = createEffect(() => {
+  //   return this.actions$.pipe(
+  //     ofType(TodoActions.loadTodo),
+  //     exhaustMap(() => {
+  //       return this.reduxTodoService
+  //         .getAllTodos()
+  //         .pipe(map((todo) => TodoActions.loadTodoSuccess({ todo })));
+  //     })
+  //   );
+  // });
+  loadTodos$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TodoActions.loadTodo),
       mergeMap(() =>
-        this.reduxTodoService
-          .getAllTodos()
-          .pipe(
-            map((todos: TodoData[]) =>
-              TodoActions.loadTodoSuccess({ todo: todos })
-            )
-          )
+        this.reduxTodoService.getAllTodos().pipe(
+          map((todo) => TodoActions.loadTodoSuccess({ todo })),
+          catchError((error) => {
+            console.error('Error in todos:', error);
+            this.store.dispatch(
+              TodoErrorActions.showNetworkError({
+                errorMessage: 'Failed to load todos. Please try again.',
+              })
+            );
+            return EMPTY;
+          })
+        )
       )
     )
   );
@@ -85,6 +102,28 @@ export class TodoEffects {
               TodoActions.markAsCompleted({ id: action.id, todo: action.todo })
             )
           )
+      )
+    )
+  );
+  clearCompleted$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TodoActions.CLEARCOMPLETED),
+      mergeMap(() =>
+        this.reduxTodoService.getAllTodos().pipe(
+          map((todos) => {
+            const completedTodos = todos.filter((todo) => todo.completed);
+            completedTodos.forEach((completedTodo) => {
+              if (completedTodo.id) {
+                this.reduxTodoService
+                  .deleteTodo(completedTodo.id)
+                  .subscribe(() => {
+                    console.log('delete', completedTodo.id);
+                  });
+              }
+            });
+            return TodoActions.clearCompletedSuccess();
+          })
+        )
       )
     )
   );
