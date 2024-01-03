@@ -22,7 +22,7 @@
           <div class="todo-li" *ngFor="let todo of allTodos$ | async">
             <ng-container>
               <span
-                (click)="markAsComplete(todo.id)"
+                (click)="markAsComplete(todo)"
                 [class.active-check]="todo.completed"
                 class="check"
               >
@@ -64,3 +64,4 @@
     </div>
   </div>
 </div>
+<app-snackbar></app-snackbar>

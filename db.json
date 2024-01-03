@@ -1,0 +1,41 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "json-server",
+      "author": "typicode"
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "body": "some comment",
+      "postId": 1
+    }
+  ],
+  "profile": {
+    "name": "typicode"
+  },
+  "todos": [
+    {
+      "id": "813c9a34-7348-43ec-95ca-235e009cebd8",
+      "name": "Warda Rasool",
+      "completed": false
+    },
+    {
+      "id": "a9da3cb1-b8e7-4f98-8a43-307b0b6a680c",
+      "name": "Abd",
+      "completed": false
+    },
+    {
+      "id": "39057e53-ebcf-4af8-b70f-2ede0a96daf1",
+      "name": "H",
+      "completed": false
+    },
+    {
+      "id": "872698eb-6696-4722-805f-4ee55c35aeb6",
+      "name": "AN",
+      "completed": false
+    }
+  ]
+}
