@@ -36,26 +36,16 @@ export const reducerTodo = createReducer(
     };
   }),
 
-  // on(Actions.MARKCOMPLETED, (state, { id }) => {
-  //   const markCompleted = state.todos.map((todo) =>
-  //     todo.id === id ? { ...todo, completed: !todo.completed } : todo
-  //   );
-  //   return {
-  //     ...state,
-  //     todos: markCompleted,
-  //   };
-  // }),
-  on(Actions.markCompleted, (state, { id, todo }) => {
-    const markCompleted = state.todos.map((existingTodo) =>
-      existingTodo.id === id
-        ? { ...existingTodo, completed: !existingTodo.completed }
-        : existingTodo
+  on(Actions.markCompletedSuccess, (state, { id }) => {
+    const markCompleted = state.todos.map((todo) =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
     );
     return {
       ...state,
       todos: markCompleted,
     };
   }),
+
   on(Actions.updateTodo, (state, { id, todo }) => {
     const updatedTodos = state.todos.map((todoUpdate) =>
       todoUpdate.id === id ? { ...todoUpdate, name: todo.name } : todoUpdate

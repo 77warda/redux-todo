@@ -1,60 +1,57 @@
-import { TestBed } from '@angular/core/testing';
-import { Store, StoreModule } from '@ngrx/store';
 import {
+  selectSharedTodosState,
   selectAllTodos,
   incompleteTodosLength,
-  selectFilteredTodos,
-  SharedStateTodosModule,
   selectCurrentTab,
-} from './state';
-import { initialState } from './reducer';
-import * as TodoActions from './actions';
+  selectFilteredTodos,
+} from './state'; // Replace with the correct path
 
 describe('Todo Selectors', () => {
-  let store: Store;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [
-        // Import the necessary modules for testing
-        StoreModule.forRoot({}),
-        SharedStateTodosModule,
+  const initialState = {
+    todos: {
+      todos: [
+        { id: '1', name: 'Task 1', completed: false },
+        { id: '2', name: 'Task 2', completed: true },
       ],
-    });
-
-    store = TestBed.inject(Store);
-  });
+      filter: 'all' as const,
+    },
+  };
 
   it('should select all todos', () => {
-    let result: any;
-
-    //Arrange
-    store.dispatch(
-      TodoActions.setTodo({
-        todo: [
-          { id: '1', name: 'Todo 1', completed: false },
-          { id: '2', name: 'Todo 2', completed: true },
-          { id: '3', name: 'Todo 3', completed: false },
-        ],
-      })
-    );
-
-    // Act
-    store.select(selectAllTodos).subscribe((todos) => {
-      result = todos;
-    });
-
-    // Assert
-    expect(result).toEqual(initialState.todos);
+    const result = selectAllTodos.projector(initialState.todos);
+    expect(result).toEqual(initialState.todos.todos);
   });
 
-  it('should select current tab', () => {
-    let result: 'all' | 'active' | 'completed' | undefined;
+  it('should select the number of incomplete todos', () => {
+    const result = incompleteTodosLength.projector(initialState.todos.todos);
+    expect(result).toEqual(1); // One incomplete todo in the initial state
+  });
 
-    store.select(selectCurrentTab).subscribe((tab) => {
-      result = tab;
-    });
+  it('should select the current tab', () => {
+    const result = selectCurrentTab.projector(initialState.todos);
+    expect(result).toEqual('all');
+  });
 
-    expect(result).toBe('all');
+  it('should select filtered todos based on the current tab', () => {
+    const resultAll = selectFilteredTodos.projector(
+      initialState.todos.todos,
+      'all'
+    );
+    const resultActive = selectFilteredTodos.projector(
+      initialState.todos.todos,
+      'active'
+    );
+    const resultCompleted = selectFilteredTodos.projector(
+      initialState.todos.todos,
+      'completed'
+    );
+
+    expect(resultAll).toEqual(initialState.todos.todos);
+    expect(resultActive).toEqual([
+      { id: '1', name: 'Task 1', completed: false },
+    ]);
+    expect(resultCompleted).toEqual([
+      { id: '2', name: 'Task 2', completed: true },
+    ]);
   });
 });

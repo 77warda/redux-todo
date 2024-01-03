@@ -53,7 +53,7 @@ export class TodoEffects {
           map((todo) => TodoActions.addTodoSuccess({ todo })),
           catchError((error) => {
             console.error('Error adding todo:', error);
-            this.store.dispatch(
+            of(
               TodoErrorActions.showNetworkError({
                 errorMessage: 'Todos added failed.',
               })
@@ -76,7 +76,7 @@ export class TodoEffects {
           }),
           catchError((error) => {
             console.error('Error deleting todo:', error);
-            this.store.dispatch(
+            of(
               TodoErrorActions.showNetworkError({
                 errorMessage: 'Network error. Todo not deleted',
               })
@@ -100,7 +100,7 @@ export class TodoEffects {
           ),
           catchError((error) => {
             console.error('Error deleting todo:', error);
-            this.store.dispatch(
+            of(
               TodoErrorActions.showNetworkError({
                 errorMessage: 'Network error. Todo Update Failed',
               })
@@ -127,7 +127,7 @@ export class TodoEffects {
             ),
             catchError((error) => {
               console.error('Error deleting todo:', error);
-              this.store.dispatch(
+              of(
                 TodoErrorActions.showNetworkError({
                   errorMessage: 'Network error. Todo not marked as completed',
                 })
@@ -158,7 +158,7 @@ export class TodoEffects {
           }),
           catchError((error) => {
             console.error('Error deleting todo:', error);
-            this.store.dispatch(
+            of(
               TodoErrorActions.showNetworkError({
                 errorMessage: 'Network error. Not all completed todos Deleted',
               })

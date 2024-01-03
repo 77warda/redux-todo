@@ -1,4 +1,4 @@
-import { reducerTodo, initialState, State } from './reducer';
+import { reducerTodo, initialState, State, TodoData } from './reducer';
 import * as Actions from './actions';
 import { Action } from 'rxjs/internal/scheduler/Action';
 
@@ -62,7 +62,7 @@ describe('reducerTodo', () => {
       filter: 'all',
     };
 
-    const action = Actions.markCompleted({
+    const action = Actions.markCompletedSuccess({
       id: '1',
       todo: initialState.todos[0],
     });
@@ -98,7 +98,10 @@ describe('reducerTodo', () => {
     const todoToToggle = { id: '1', name: 'Todo to toggle', completed: true };
     const initialStateWithTodo = { ...initialState, todos: [todoToToggle] };
 
-    const action = Actions.markCompleted({ id: '1', todo: todoToToggle });
+    const action = Actions.markCompletedSuccess({
+      id: '1',
+      todo: todoToToggle,
+    });
     const newState = reducerTodo(initialStateWithTodo, action);
 
     // Check if the completed status is toggled in the state
@@ -177,9 +180,9 @@ describe('reducerTodo', () => {
     // expect(StateCompleted.todos.length).toBe(0);
     expect(StateActive.todos.length).toBe(3);
 
-    // // Check if the filter property is updated
-    // expect(StateCompleted.filter).toBe('completed');
-    // expect(StateActive.filter).toBe('active');
+    // Check if the filter property is updated
+    expect(StateCompleted.filter).toBe('completed');
+    expect(StateActive.filter).toBe('active');
   });
 
   it('should set todos when setTodo action is dispatched', () => {
@@ -209,5 +212,18 @@ describe('reducerTodo', () => {
 
     // Check if the filter property remains unchanged
     expect(newState.filter).toBe('all');
+  });
+
+  it('should handle loadTodoSuccess action', () => {
+    const todo: TodoData[] = [
+      { id: '1', name: 'Task 1', completed: false },
+      { id: '2', name: 'Task 2', completed: true },
+    ];
+
+    const action = Actions.loadTodoSuccess({ todo });
+
+    const state: State = reducerTodo(initialState, action);
+
+    expect(state.todos).toEqual([...initialState.todos, ...todo]);
   });
 });
