@@ -26,12 +26,6 @@ export class ReduxTodoService {
     return this.http.put<TodoData>(`${this.apiUrl}/${id}`, todo);
   }
 
-  update(id: string, updates: BookRequiredProps) {
-    return this.http.patch<TodoData>(
-      `${this.apiUrl}/${id}`,
-      JSON.stringify(updates)
-    );
-  }
   deleteTodo(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Actions, concatLatestFrom, createEffect, ofType } from '@ngrx/effects';
 import {
   withLatestFrom,
   mergeMap,
@@ -8,6 +8,7 @@ import {
   switchMap,
   concatMap,
   exhaustMap,
+  tap,
 } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import { State, TodoData } from './reducer';
@@ -15,7 +16,7 @@ import * as TodoActions from './actions';
 import * as TodoErrorActions from './error-action';
 import { selectAllTodos } from './state';
 import { ReduxTodoService } from './redux-todo.service';
-import { of, Observable, EMPTY } from 'rxjs';
+import { of, Observable, EMPTY, from } from 'rxjs';
 import { Action } from '@ngrx/store';
 
 @Injectable()
@@ -141,7 +142,8 @@ export class TodoEffects {
   clearCompleted$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TodoActions.CLEARCOMPLETED),
-      mergeMap(() =>
+      concatLatestFrom(() => [this.store.pipe(select(selectAllTodos))]),
+      concatMap(() =>
         this.reduxTodoService.getAllTodos().pipe(
           map((todos) => {
             const completedTodos = todos.filter((todo) => todo.completed);
