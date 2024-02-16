@@ -18,19 +18,14 @@
   },
   "todos": [
     {
-      "id": "813c9a34-7348-43ec-95ca-235e009cebd8",
-      "name": "Warda Rasool",
+      "id": "55828468-2834-4991-a1dd-d69649cf6ee9",
+      "name": "warda",
       "completed": false
     },
     {
-      "id": "a9da3cb1-b8e7-4f98-8a43-307b0b6a680c",
-      "name": "Abd",
-      "completed": true
-    },
-    {
-      "id": "b2e6af96-4faf-4987-919c-bbd9b3471974",
-      "name": "rgdd",
-      "completed": true
+      "id": "d989e54c-0dc4-4cdc-854d-e52210eea48d",
+      "name": "uzair",
+      "completed": false
     }
   ]
 }

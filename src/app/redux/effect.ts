@@ -142,11 +142,17 @@ export class TodoEffects {
   clearCompleted$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TodoActions.CLEARCOMPLETED),
-      concatLatestFrom(() => [this.store.pipe(select(selectAllTodos))]),
-      concatMap(() =>
-        this.reduxTodoService.getAllTodos().pipe(
-          map((todos) => {
-            const completedTodos = todos.filter((todo) => todo.completed);
+      concatLatestFrom(() => this.store.pipe(select(selectAllTodos))),
+      concatMap(([_, todos]) => {
+        if (!todos) {
+          // If selectAllTodos returns undefined, handle it here
+          console.error('Todos are undefined');
+          return EMPTY;
+        }
+
+        return this.reduxTodoService.getAllTodos().pipe(
+          map((allTodos) => {
+            const completedTodos = allTodos.filter((todo) => todo.completed);
             completedTodos.forEach((completedTodo) => {
               if (completedTodo.id) {
                 this.reduxTodoService
@@ -160,15 +166,14 @@ export class TodoEffects {
           }),
           catchError((error) => {
             console.error('Error deleting todo:', error);
-            of(
+            return of(
               TodoErrorActions.showNetworkError({
                 errorMessage: 'Network error. Not all completed todos Deleted',
               })
             );
-            return EMPTY;
           })
-        )
-      )
+        );
+      })
     )
   );
 }

@@ -1,6 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import * as Actions from './actions';
 import { v4 as uuidv4 } from 'uuid';
+import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
 
 export interface TodoData {
   id: string;
@@ -9,65 +10,55 @@ export interface TodoData {
 }
 export type BookRequiredProps = Pick<TodoData, 'name'>;
 
-export interface State {
+export interface State extends EntityState<TodoData> {
   todos: TodoData[];
   filter: 'all' | 'active' | 'completed';
 }
 
-export const initialState: State = {
+export const adapter: EntityAdapter<TodoData> = createEntityAdapter<TodoData>();
+export const initialState: State = adapter.getInitialState({
   todos: [],
   filter: 'all',
-};
+});
 
 export const reducerTodo = createReducer(
   initialState,
   on(Actions.addTodoSuccess, (state, { todo }) => {
-    return {
-      ...state,
-      todos: [...state.todos, todo],
-    };
+    return adapter.addOne(todo, state);
+  }),
+
+  on(Actions.setTodo, (state, { todo }) => {
+    return adapter.setOne(todo, state);
   }),
 
   on(Actions.deleteTodo, (state, { id }) => {
-    const deleteTodo = state.todos.filter((todo) => todo.id !== id);
-    return {
-      ...state,
-      todos: deleteTodo,
-    };
+    return adapter.removeOne(id, state);
   }),
 
   on(Actions.markCompletedSuccess, (state, { id }) => {
-    const markCompleted = state.todos.map((todo) =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    return adapter.updateOne(
+      { id, changes: { completed: !state.entities[id].completed } },
+      state
     );
-    return {
-      ...state,
-      todos: markCompleted,
-    };
   }),
 
   on(Actions.updateTodo, (state, { id, todo }) => {
-    const updatedTodos = state.todos.map((todoUpdate) =>
-      todoUpdate.id === id ? { ...todoUpdate, name: todo.name } : todoUpdate
-    );
-    return { ...state, todos: updatedTodos };
+    return adapter.updateOne({ id: id, changes: { name: todo.name } }, state);
   }),
 
-  on(Actions.CLEARCOMPLETED, (state) => {
-    const clearCompletedTodos = state.todos.filter((todo) => !todo.completed);
-    return {
-      ...state,
-      todos: clearCompletedTodos,
-    };
+  on(Actions.clearCompletedSuccess, (state) => {
+    const { ids, entities } = state;
+    const completedIds = Object.keys(entities).filter(
+      (id) => entities[id].completed
+    );
+    return adapter.removeMany(completedIds, state);
   }),
+
   on(Actions.FILTERDATA, (state, { filter }) => {
     return { ...state, filter };
   }),
 
   on(Actions.loadTodoSuccess, (state, { todo }) => {
-    return { ...state, todos: [...state.todos, ...todo] };
-  }),
-  on(Actions.setTodo, (state, { todo }) => {
-    return { ...state, todos: [...state.todos, ...todo] };
+    return adapter.setAll(todo, state);
   })
 );

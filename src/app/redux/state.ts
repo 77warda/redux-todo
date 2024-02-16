@@ -7,6 +7,7 @@ import {
   StoreModule,
 } from '@ngrx/store';
 import * as fromBooks from './reducer';
+import { adapter } from './reducer';
 
 export const FEATURE_KEY = 'todos';
 
@@ -31,10 +32,9 @@ export class SharedStateTodosModule {}
 export const selectSharedTodosState =
   createFeatureSelector<fromBooks.State>('todos');
 
-export const selectAllTodos = createSelector(
-  selectSharedTodosState,
-  // (state) => state && state.todos
-  (state) => (state && state.todos ? state.todos : [])
+const { selectAll } = adapter.getSelectors();
+export const selectAllTodos = createSelector(selectSharedTodosState, (state) =>
+  selectAll(state)
 );
 export const incompleteTodosLength = createSelector(
   selectAllTodos,

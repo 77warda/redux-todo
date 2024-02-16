@@ -15,6 +15,7 @@ export const deleteTodo = createAction(
   '[Todo] delete todo',
   props<{ id: string }>()
 );
+
 export const deleteTodoSuccess = createAction(
   '[Todo] todo deleted successfully',
   props<{ id: string }>()
@@ -57,5 +58,5 @@ export const loadTodoSuccess = createAction(
 );
 export const setTodo = createAction(
   '[Todo] setTodo',
-  props<{ todo: TodoData[] }>()
+  props<{ todo: TodoData }>()
 );

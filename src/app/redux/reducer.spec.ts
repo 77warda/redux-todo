@@ -1,229 +1,182 @@
-import { reducerTodo, initialState, State, TodoData } from './reducer';
-import * as Actions from './actions';
-import { Action } from 'rxjs/internal/scheduler/Action';
+import { reducerTodo, initialState, TodoData, adapter, State } from './reducer';
+import * as TodoActions from './actions';
+import { v4 as uuidv4 } from 'uuid';
 
-describe('reducerTodo', () => {
-  it('should handle "ADDTODO" action', () => {
-    // Arrange
-    const todo = { id: '1', name: 'New Todo', completed: false }; // Provide mock data
-    const action = Actions.addTodoSuccess({ todo });
-    const newState = reducerTodo(initialState, action);
+const todos: TodoData[] = [
+  {
+    id: '1',
+    name: 'Todo 1',
+    completed: false,
+  },
+  {
+    id: '2',
+    name: 'Todo 2',
+    completed: true,
+  },
+];
 
-    // Check if the new todo is added to the state
-    expect(newState.todos.length).toBe(initialState.todos.length + 1);
+describe('reducer Todo', () => {
+  let initialStateWithData: State;
 
-    // Check if the new todo has the correct properties
-    const addedTodo = newState.todos.find((t) => t.name === todo.name);
-    expect(addedTodo).toBeTruthy();
-    expect(addedTodo!.completed).toBe(false);
-    expect(addedTodo!.name).toBe(todo.name);
-  });
-  it('should delete a todo when DELETETODO action is dispatched', () => {
-    // Add a todo to the initial state
-    const todoToDelete = { id: '1', name: 'Todo to delete', completed: false };
-    const initialStateWithTodo = { ...initialState, todos: [todoToDelete] };
-
-    const action = Actions.deleteTodo({ id: '1' });
-    const newState = reducerTodo(initialStateWithTodo, action);
-
-    // Check if the todo is deleted from the state
-    expect(newState.todos.length).toBe(initialStateWithTodo.todos.length - 1);
-
-    // Check if the deleted todo is not present in the new state
-    const deletedTodo = newState.todos.find((t) => t.id === todoToDelete.id);
-    expect(deletedTodo).toBeFalsy();
-  });
-
-  it('should not delete any todo if the provided id does not match any todo', () => {
-    // Add a todo to the initial state
-    const todoToDelete = { id: '1', name: 'Todo to delete', completed: false };
-    const initialStateWithTodo = { ...initialState, todos: [todoToDelete] };
-
-    // Attempt to delete a todo with a different id
-    const action = Actions.deleteTodo({ id: '2' });
-    const newState = reducerTodo(initialStateWithTodo, action);
-
-    // Check if the number of todos remains the same
-    expect(newState.todos.length).toBe(initialStateWithTodo.todos.length);
-
-    // Check if the initial todo is still present in the state
-    const existingTodo = newState.todos.find((t) => t.id === todoToDelete.id);
-    expect(existingTodo).toBeTruthy();
-  });
-
-  it('should handle MARKCOMPLETED action', () => {
-    // Arrange
-    const initialState: State = {
-      todos: [
-        { id: '1', name: 'Todo 1', completed: false },
-        { id: '2', name: 'Todo 2', completed: false },
-        { id: '3', name: 'Todo 3', completed: false },
-      ],
-      filter: 'all',
+  beforeEach(() => {
+    initialStateWithData = {
+      ...initialState,
+      entities: adapter.setAll(todos, initialState).entities,
     };
+  });
 
-    const action = Actions.markCompletedSuccess({
-      id: '1',
-      todo: initialState.todos[0],
-    });
-    const actionWithInvalidId = Actions.markCompletedSuccess({
+  it('should handle "Add todo" action', () => {
+    // Arrange
+    const todoToAdd: TodoData = {
+      id: '3',
+      name: 'Todo 3',
+      completed: false,
+    };
+    const action = TodoActions.addTodoSuccess({ todo: todoToAdd });
+    // Act
+    const newState = reducerTodo(initialState, action);
+    // Assert
+    const entities = adapter.getSelectors().selectAll(newState);
+    expect(entities.length).toBe(1);
+    expect(entities[0].name).toEqual(todoToAdd.name);
+  });
+  it('should handle "set Todo" action', () => {
+    // Arrange
+    const todoToUpdate: TodoData = {
       id: '4',
-      todo: initialState.todos[0],
-    });
+      name: 'Updated Todo',
+      completed: false,
+    };
+    const action = TodoActions.setTodo({ todo: todoToUpdate });
 
     // Act
     const newState = reducerTodo(initialState, action);
-    const newStateWithInvalidId = reducerTodo(
-      initialState,
-      actionWithInvalidId
-    );
-
     // Assert
-    expect(newState.todos.length).toBe(3);
-
-    // Check when action dispatched on targeted todo and other not change
-    expect(newState.todos[0].id).toBe('1');
-    expect(newState.todos[0].completed).toBe(true);
-
-    // Check if other (second index) todos remain unchanged
-    expect(newState.todos[2].id).toBe('3');
-    expect(newState.todos[2].completed).toBe(false);
-
-    // Should return the same state when MARKCOMPLETED action is dispatched with an invalid ID
-    expect(newStateWithInvalidId).toEqual(initialState);
+    const entities = adapter.getSelectors().selectAll(newState);
+    expect(entities.length).toBe(1);
+    expect(entities.find((todo) => todo.id === '3')).toBeUndefined();
+    expect(entities.find((todo) => todo.id === '4')).toBeDefined();
+    expect(entities.find((todo) => todo.id === '4')?.completed).toBe(false);
   });
 
-  it('should toggle the completed status of a todo when MARKCOMPLETED action is dispatched', () => {
-    // Add a completed todo to the initial state
-    const todoToToggle = { id: '1', name: 'Todo to toggle', completed: true };
-    const initialStateWithTodo = { ...initialState, todos: [todoToToggle] };
+  it('should handle "todoDeleted" action', () => {
+    // Arrange
+    const initialStateWithData: State = {
+      ...initialState,
+      entities: adapter.setAll(todos, initialState).entities,
+    };
+    const action = TodoActions.deleteTodoSuccess({ id: '1' });
 
-    const action = Actions.markCompletedSuccess({
+    // Act
+    const newState = reducerTodo(initialStateWithData, action);
+
+    // Assert
+    const entities = adapter.getSelectors().selectAll(newState);
+    expect(entities.length).toBe(0);
+    expect(entities.find((todo) => todo.id === '1')).toBeUndefined();
+  });
+
+  it('should handle "markCompletedSuccess" action', () => {
+    // Arrange
+    const todoIdToMarkCompleted = '2';
+    const initialStateWithData: State = {
+      ...initialState,
+      entities: adapter.setAll(todos, initialState).entities,
+    };
+    const originalCompletedStatus =
+      initialStateWithData.entities[todoIdToMarkCompleted]?.completed;
+    const action = TodoActions.markCompletedSuccess({
+      id: todoIdToMarkCompleted,
+      todo: { id: '', name: '', completed: false },
+    });
+
+    // Act
+    const newState = reducerTodo(initialStateWithData, action);
+
+    // Assert
+    const updatedTodo = newState.entities[todoIdToMarkCompleted];
+    expect(updatedTodo).toBeDefined();
+    expect(updatedTodo!.completed).toEqual(!originalCompletedStatus);
+  });
+  it('should handle "UpdateTodo" action', () => {
+    // Arrange
+    const initialStateWithData: State = {
+      ...initialState,
+      entities: adapter.setAll(todos, initialState).entities,
+    };
+    const updatedTodo: TodoData = {
       id: '1',
-      todo: todoToToggle,
+      name: 'Updated Todo 1',
+      completed: false,
+    };
+    const action = TodoActions.updateTodo({
+      id: '1',
+      todo: { ...updatedTodo, name: 'Updated Todo 1' },
     });
-    const newState = reducerTodo(initialStateWithTodo, action);
 
-    // Check if the completed status is toggled in the state
-    const toggledTodo = newState.todos.find((t) => t.id === todoToToggle.id);
-    expect(toggledTodo).toBeTruthy();
-    expect(toggledTodo!.completed).toBe(false);
+    // Act
+    const newState = reducerTodo(initialStateWithData, action);
+
+    // Assert
+    const updatedTodoState = newState.entities['1'];
+    expect(updatedTodoState).toBeDefined();
+    expect(updatedTodoState?.name).toBe(updatedTodo.name);
   });
-  it('should handle UPDATETODO action ', () => {
+
+  it('should handle "FilterData" action', () => {
     // Arrange
-    const initialState: State = {
-      todos: [
-        { id: '1', name: 'Todo 1', completed: false },
-        { id: '2', name: 'Todo 2', completed: false },
-        { id: '3', name: 'Todo 3', completed: false },
-      ],
-      filter: 'all',
-    };
-
-    const updatedTodo = { id: '1', name: 'Updated Todo 1', completed: false };
-    const action = Actions.updateTodo({ id: '1', todo: updatedTodo });
-
+    const action = TodoActions.FILTERDATA({ filter: 'completed' });
     // Act
     const newState = reducerTodo(initialState, action);
-
     // Assert
-    expect(newState.todos.length).toBe(3);
-
-    // Check when action dispatched on targeted todo and name changed
-    expect(newState.todos[0].id).toBe('1');
-    expect(newState.todos[0].name).toBe('Updated Todo 1');
-
-    // Check if other todos remain unchanged
-    expect(newState.todos[0].completed).toBe(false);
+    expect(newState.filter).toBe('completed');
   });
-  it('should handle CLEARCOMPLETED action', () => {
-    //Arrange
-    const initialState: State = {
-      todos: [
-        { id: '1', name: 'Todo 1', completed: false },
-        { id: '2', name: 'Todo 2', completed: true },
-        { id: '3', name: 'Todo 3', completed: false },
-      ],
-      filter: 'all',
-    };
 
-    const Action = Actions.CLEARCOMPLETED();
-    //Act
-    const newState = reducerTodo(initialState, Action);
-
-    //Assert
-    expect(newState.todos.length).toBe(2);
-
-    expect(newState.todos[1].id).toBe('3');
-    expect(newState.todos[1].name).toBe('Todo 3');
-    expect(newState.todos[1].completed).toBe(false);
-  });
-  it('should update the filter when handle FILTERDATA action', () => {
+  it('should handle "loadTodoSuccess" action', () => {
     // Arrange
-    const initialState: State = {
-      todos: [
-        { id: '1', name: 'Todo 1', completed: true },
-        { id: '2', name: 'Todo 2', completed: true },
-        { id: '3', name: 'Todo 3', completed: true },
-      ],
-      filter: 'all',
-    };
-
-    const actionCompleted = Actions.FILTERDATA({ filter: 'completed' });
-    const actionActive = Actions.FILTERDATA({ filter: 'active' });
+    const todos: TodoData[] = [
+      {
+        id: '1',
+        name: 'Todo 1',
+        completed: false,
+      },
+      {
+        id: '2',
+        name: 'Todo 2',
+        completed: true,
+      },
+    ];
+    const action = TodoActions.loadTodoSuccess({ todo: todos });
 
     // Act
-    const StateCompleted = reducerTodo(initialState, actionCompleted);
-    const StateActive = reducerTodo(initialState, actionActive);
+    const newState = reducerTodo(initialStateWithData, action);
 
     // Assert
-    // expect(StateCompleted.todos.length).toBe(0);
-    expect(StateActive.todos.length).toBe(3);
-
-    // Check if the filter property is updated
-    expect(StateCompleted.filter).toBe('completed');
-    expect(StateActive.filter).toBe('active');
+    const entities = adapter.getSelectors().selectAll(newState);
+    expect(entities.length).toBe(2);
+    expect(entities.find((todo) => todo.id === '1')).toEqual(todos[0]);
+    expect(entities.find((todo) => todo.id === '2')).toEqual(todos[1]);
   });
 
-  it('should set todos when setTodo action is dispatched', () => {
+  it('should handle "clearCompletedSuccess" action', () => {
     // Arrange
-    const initialState: State = {
-      todos: [],
-      filter: 'all',
-    };
-
-    const todosToAdd = [
-      { id: '1', name: 'Todo 1', completed: false },
+    const todos = [
+      { id: '1', name: 'Todo 1', completed: true },
       { id: '2', name: 'Todo 2', completed: true },
+      { id: '3', name: 'Todo 3', completed: true },
     ];
-
-    const action = Actions.setTodo({ todo: todosToAdd });
+    const initialStateWithData: State = {
+      ...initialState,
+      entities: adapter.setAll(todos, initialState).entities,
+    };
+    const action = TodoActions.clearCompletedSuccess();
 
     // Act
-    const newState = reducerTodo(initialState, action);
+    const newState = reducerTodo(initialStateWithData, action);
 
     // Assert
-    expect(newState.todos.length).toBe(2);
-
-    // Check if the todos are added
-    expect(newState.todos[0].id).toBe('1');
-    expect(newState.todos[1].id).toBe('2');
-    expect(newState.todos[1].completed).toBe(true);
-
-    // Check if the filter property remains unchanged
-    expect(newState.filter).toBe('all');
-  });
-
-  it('should handle loadTodoSuccess action', () => {
-    const todo: TodoData[] = [
-      { id: '1', name: 'Task 1', completed: false },
-      { id: '2', name: 'Task 2', completed: true },
-    ];
-
-    const action = Actions.loadTodoSuccess({ todo });
-
-    const state: State = reducerTodo(initialState, action);
-
-    expect(state.todos).toEqual([...initialState.todos, ...todo]);
+    const entities = adapter.getSelectors().selectAll(newState);
+    const incompleteTodos = entities.filter((todo) => !todo.completed);
+    expect(incompleteTodos.length).toBe(0);
   });
 });
