@@ -25,6 +25,13 @@ module.exports = function (config) {
     jasmineHtmlReporter: {
       suppressAll: true, // removes the duplicated traces
     },
+    files: [
+      // Include your app files, adjust the path and naming convention as needed
+      "src/app/redux/**/*.ts",
+
+      // Include your test files, adjust the path and naming convention as needed
+      "src/app/redux/**/*.spec.ts",
+    ],
     coverageReporter: {
       dir: require("path").join(__dirname, "./coverage/net-incident"),
       subdir: ".",

@@ -1,0 +1,31 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "json-server",
+      "author": "typicode"
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "body": "some comment",
+      "postId": 1
+    }
+  ],
+  "profile": {
+    "name": "typicode"
+  },
+  "todos": [
+    {
+      "id": "55828468-2834-4991-a1dd-d69649cf6ee9",
+      "name": "warda",
+      "completed": false
+    },
+    {
+      "id": "d989e54c-0dc4-4cdc-854d-e52210eea48d",
+      "name": "uzair",
+      "completed": false
+    }
+  ]
+}

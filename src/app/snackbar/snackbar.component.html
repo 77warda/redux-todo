@@ -1,0 +1,4 @@
+<div class="snackbar-error" *ngIf="errorMessage$ | async as errorMessage">
+  <p>{{ errorMessage }}</p>
+  <button class="" (click)="close()">close</button>
+</div>

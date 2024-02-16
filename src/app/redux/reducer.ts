@@ -1,152 +1,64 @@
-// import { Action } from './actions';
-
-// export interface TodoData {
-//   id: number;
-//   todo: string;
-//   completed: boolean;
-// }
-
-// export interface State {
-//   todos: TodoData[];
-// }
-
-// export const initialState: State = {
-//   todos: [
-//     { id: 1, todo: 'First', completed: true },
-//     { id: 2, todo: 'Second', completed: false },
-//     { id: 3, todo: 'Third', completed: false },
-//     { id: 4, todo: 'Fourth', completed: true },
-//   ],
-// };
-// // Redux Reducer Function
-// export const reducer = (state: State = initialState, action: Action): State => {
-//   if (action.type === 'ADDTODO') {
-//     const newTodo: TodoData = {
-//       id: state.todos.length + 1,
-//       todo: action.payload?.['todo'],
-//       completed: false,
-//     };
-//     return {
-//       ...state,
-//       todos: [...state.todos, newTodo],
-//     };
-//   }
-//   if (action.type == 'DELETETODO') {
-//     const deleteTodo = action.payload?.['id'];
-//     if (deleteTodo) {
-//       const deleteTodos = state.todos.filter((todo) => todo.id !== deleteTodo);
-//       return {
-//         ...state,
-//         todos: deleteTodos,
-//       };
-//     }
-//   }
-//   if (action.type === 'MARKCOMPLETED') {
-//     const toggleTodoId = action.payload?.['id'];
-//     if (toggleTodoId) {
-//       const updatedTodos = state.todos.map((todo) =>
-//         todo.id === toggleTodoId
-//           ? { ...todo, completed: !todo.completed }
-//           : todo
-//       );
-//       return {
-//         ...state,
-//         todos: updatedTodos,
-//       };
-//     }
-//   }
-//   if (action.type === 'UPDATETODO') {
-//     const updateId = action.payload?.['id'];
-//     const updateText = action.payload?.['todo'];
-
-//     if (updateId && updateText) {
-//       const updatedTodos = state.todos.map((todo) =>
-//         todo.id === updateId ? { ...todo, todo: updateText } : todo
-//       );
-//       return {
-//         ...state,
-//         todos: updatedTodos,
-//       };
-//     }
-//   }
-//   if (action.type === 'CLEARCOMPLETED') {
-//     const clearCompletedTodos = state.todos.filter((todo) => !todo.completed);
-//     return {
-//       ...state,
-//       todos: clearCompletedTodos,
-//     };
-//   }
-//   return state;
-// };
-
 import { createReducer, on } from '@ngrx/store';
 import * as Actions from './actions';
+import { v4 as uuidv4 } from 'uuid';
+import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
 
 export interface TodoData {
-  id: number;
+  id: string;
   name: string;
   completed: boolean;
 }
+export type BookRequiredProps = Pick<TodoData, 'name'>;
 
-export interface State {
+export interface State extends EntityState<TodoData> {
   todos: TodoData[];
   filter: 'all' | 'active' | 'completed';
 }
 
-export const initialState: State = {
+export const adapter: EntityAdapter<TodoData> = createEntityAdapter<TodoData>();
+export const initialState: State = adapter.getInitialState({
   todos: [],
   filter: 'all',
-};
+});
 
 export const reducerTodo = createReducer(
   initialState,
-  on(Actions.ADDTODO, (state, { todo }) => {
-    const newTodo: TodoData = {
-      id: state.todos.length + 1,
-      name: todo.name,
-      completed: false,
-    };
-    return {
-      ...state,
-      todos: [...state.todos, newTodo],
-    };
+  on(Actions.addTodoSuccess, (state, { todo }) => {
+    return adapter.addOne(todo, state);
   }),
 
-  on(Actions.DELETETODO, (state, { id }) => {
-    const deleteTodo = state.todos.filter((todo) => todo.id !== id);
-    return {
-      ...state,
-      todos: deleteTodo,
-    };
+  on(Actions.setTodo, (state, { todo }) => {
+    return adapter.setOne(todo, state);
   }),
 
-  on(Actions.MARKCOMPLETED, (state, { id }) => {
-    const markCompleted = state.todos.map((todo) =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+  on(Actions.deleteTodo, (state, { id }) => {
+    return adapter.removeOne(id, state);
+  }),
+
+  on(Actions.markCompletedSuccess, (state, { id }) => {
+    return adapter.updateOne(
+      { id, changes: { completed: !state.entities[id].completed } },
+      state
     );
-    return {
-      ...state,
-      todos: markCompleted,
-    };
-  }),
-  on(Actions.UPDATETODO, (state, { id, todo }) => {
-    const updatedTodos = state.todos.map((todoUpdate) =>
-      todoUpdate.id === id ? { ...todoUpdate, name: todo.name } : todoUpdate
-    );
-    return { ...state, todos: updatedTodos };
   }),
 
-  on(Actions.CLEARCOMPLETED, (state) => {
-    const clearCompletedTodos = state.todos.filter((todo) => !todo.completed);
-    return {
-      ...state,
-      todos: clearCompletedTodos,
-    };
+  on(Actions.updateTodo, (state, { id, todo }) => {
+    return adapter.updateOne({ id: id, changes: { name: todo.name } }, state);
   }),
+
+  on(Actions.clearCompletedSuccess, (state) => {
+    const { ids, entities } = state;
+    const completedIds = Object.keys(entities).filter(
+      (id) => entities[id].completed
+    );
+    return adapter.removeMany(completedIds, state);
+  }),
+
   on(Actions.FILTERDATA, (state, { filter }) => {
     return { ...state, filter };
   }),
-  on(Actions.setTodo, (state, { todo }) => {
-    return { ...state, todos: [...state.todos, ...todo] };
+
+  on(Actions.loadTodoSuccess, (state, { todo }) => {
+    return adapter.setAll(todo, state);
   })
 );
