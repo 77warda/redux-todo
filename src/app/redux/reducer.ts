@@ -12,13 +12,17 @@ export type BookRequiredProps = Pick<TodoData, 'name'>;
 
 export interface State extends EntityState<TodoData> {
   todos: TodoData[];
-  filter: 'all' | 'active' | 'completed';
+  filterTodo: 'all' | 'active' | 'completed';
+  deleteMsg: string;
+  deletedTodo: TodoData | null;
 }
 
 export const adapter: EntityAdapter<TodoData> = createEntityAdapter<TodoData>();
 export const initialState: State = adapter.getInitialState({
   todos: [],
-  filter: 'all',
+  filterTodo: 'all',
+  deleteMsg: '',
+  deletedTodo: null,
 });
 
 export const reducerTodo = createReducer(
@@ -31,8 +35,13 @@ export const reducerTodo = createReducer(
     return adapter.setOne(todo, state);
   }),
 
-  on(Actions.deleteTodo, (state, { id }) => {
-    return adapter.removeOne(id, state);
+  on(Actions.deleteTodoSuccess, (state, { id }) => {
+    // return adapter.removeOne(id, state);
+    const deletedTodo = state.entities[id];
+    return {
+      ...adapter.removeOne(id, state),
+      deletedTodo: deletedTodo, // Store the deleted todo
+    };
   }),
 
   on(Actions.markCompletedSuccess, (state, { id }) => {
@@ -54,11 +63,35 @@ export const reducerTodo = createReducer(
     return adapter.removeMany(completedIds, state);
   }),
 
-  on(Actions.FILTERDATA, (state, { filter }) => {
-    return { ...state, filter };
+  on(Actions.FILTERDATA, (state, { filterTodo }) => {
+    return { ...state, filterTodo };
   }),
 
   on(Actions.loadTodoSuccess, (state, { todo }) => {
     return adapter.setAll(todo, state);
-  })
+  }),
+  on(Actions.setDeleteMsg, (state, { message }) => ({
+    ...state,
+    deleteMsg: message,
+  })),
+  on(Actions.undoDeletedTodo, (state) => {
+    if (state.deletedTodo) {
+      return {
+        ...adapter.addOne(state.deletedTodo, state),
+      };
+    } else {
+      console.warn('No deleted todo to undo');
+      return state;
+    }
+  }),
+  on(Actions.restoreDeletedTodo, (state) => {
+    return {
+      ...state,
+      deletedTodo: null,
+    };
+  }),
+  on(Actions.resetDeleteMsg, (state) => ({
+    ...state,
+    deleteMsg: '', // Reset deleteMsg after a delay
+  }))
 );

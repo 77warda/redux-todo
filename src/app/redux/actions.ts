@@ -8,7 +8,7 @@ export const addTodo = createAction(
 
 export const addTodoSuccess = createAction(
   '[Todo] todo added Successfully',
-  props<{ todo: TodoData }>()
+  props<{ todo: TodoData; atIndex?: number }>()
 );
 
 export const deleteTodo = createAction(
@@ -48,7 +48,7 @@ export const clearCompletedSuccess = createAction(
 
 export const FILTERDATA = createAction(
   '[Todo] FILTER',
-  props<{ filter: 'all' | 'active' | 'completed' }>()
+  props<{ filterTodo: 'all' | 'active' | 'completed' }>()
 );
 export const enterTodosPage = createAction('[Todo] get all todos ');
 export const loadTodo = createAction('[Todo] Load todo ');
@@ -60,3 +60,14 @@ export const setTodo = createAction(
   '[Todo] setTodo',
   props<{ todo: TodoData }>()
 );
+export const setDeleteMsg = createAction(
+  '[Todo] setDeleteMsg',
+  props<{ message: string }>()
+);
+
+export const undoDeletedTodo = createAction('[Todo Page] Undo Deleted Todo');
+export const restoreDeletedTodo = createAction(
+  '[Todo] Restore Deleted Todo',
+  props<{ todo: TodoData }>()
+);
+export const resetDeleteMsg = createAction('[Todo Page] Reset Delete Message');

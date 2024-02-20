@@ -89,7 +89,7 @@ export class TodoAppComponent {
     this.todoForm.reset();
   }
 
-  deleteTodo(id: string): void {
+  deleteTodo(id: string, todoToDelete: TodoData): void {
     // this.reduxTodoService.deleteTodo(id).subscribe(() => this.refreshData());
     this.store.dispatch(todoPageActions.deleteTodo({ id }));
   }
@@ -126,7 +126,7 @@ export class TodoAppComponent {
     // });
     this.store.dispatch(todoPageActions.CLEARCOMPLETED());
   }
-  setFilter(filter: 'all' | 'active' | 'completed'): void {
-    this.store.dispatch(todoPageActions.FILTERDATA({ filter }));
+  setFilter(filterTodo: 'all' | 'active' | 'completed'): void {
+    this.store.dispatch(todoPageActions.FILTERDATA({ filterTodo }));
   }
 }

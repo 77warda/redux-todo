@@ -2,3 +2,9 @@
   <p>{{ errorMessage }}</p>
   <button class="" (click)="close()">close</button>
 </div>
+<ng-container *ngIf="deleteMessage$ | async as deleteMessage">
+  <div class="snackbar-error">
+    <p>{{ deleteMessage }}</p>
+    <button class="" (click)="undoDelete()">undo</button>
+  </div>
+</ng-container>

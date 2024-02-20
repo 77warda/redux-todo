@@ -9,12 +9,14 @@ import {
   concatMap,
   exhaustMap,
   tap,
+  filter,
+  take,
 } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import { State, TodoData } from './reducer';
 import * as TodoActions from './actions';
 import * as TodoErrorActions from './error-action';
-import { selectAllTodos } from './state';
+import { selectAllTodos, selectDeletedTodo } from './state';
 import { ReduxTodoService } from './redux-todo.service';
 import { of, Observable, EMPTY, from } from 'rxjs';
 import { Action } from '@ngrx/store';
@@ -72,7 +74,10 @@ export class TodoEffects {
       mergeMap((action) =>
         this.reduxTodoService.deleteTodo(action.id).pipe(
           map(() => {
-            console.log('Todo deleted successfully');
+            // console.log('Todo deleted successfully');
+            setTimeout(() => {
+              this.store.dispatch(TodoActions.resetDeleteMsg());
+            }, 2000);
             return TodoActions.deleteTodoSuccess({ id: action.id });
           }),
           catchError((error) => {
@@ -85,6 +90,14 @@ export class TodoEffects {
             return EMPTY;
           })
         )
+      )
+    )
+  );
+  showDeleteSnackbar$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TodoActions.deleteTodoSuccess),
+      map(() =>
+        TodoActions.setDeleteMsg({ message: 'Todo deleted successfully' })
       )
     )
   );
@@ -139,6 +152,7 @@ export class TodoEffects {
       )
     )
   );
+
   clearCompleted$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TodoActions.CLEARCOMPLETED),
@@ -174,6 +188,30 @@ export class TodoEffects {
           })
         );
       })
+    )
+  );
+
+  undoDelete$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TodoActions.undoDeletedTodo),
+      withLatestFrom(this.store.pipe(select(selectDeletedTodo))),
+      filter(([action, deletedTodo]) => !!deletedTodo),
+      mergeMap(([action, deletedTodo]) =>
+        this.reduxTodoService.addTodo(deletedTodo).pipe(
+          map((restoredTodo: TodoData) =>
+            TodoActions.addTodoSuccess({ todo: restoredTodo })
+          ),
+          catchError((error) => {
+            console.error('Error restoring deleted todo:', error);
+            return of(
+              TodoErrorActions.showNetworkError({
+                errorMessage:
+                  'Failed to restore deleted todo. Please try again.',
+              })
+            );
+          })
+        )
+      )
     )
   );
 }

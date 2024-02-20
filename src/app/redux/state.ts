@@ -42,7 +42,7 @@ export const incompleteTodosLength = createSelector(
 );
 export const selectCurrentTab = createSelector(
   selectSharedTodosState,
-  (state) => state.filter
+  (state) => state.filterTodo
 );
 
 export const selectFilteredTodos = createSelector(
@@ -59,4 +59,14 @@ export const selectFilteredTodos = createSelector(
       return todos;
     }
   }
+);
+
+export const getDeleteMsg = createSelector(
+  selectSharedTodosState,
+  (state) => state.deleteMsg
+);
+
+export const selectDeletedTodo = createSelector(
+  selectSharedTodosState,
+  (state) => state.deletedTodo
 );
